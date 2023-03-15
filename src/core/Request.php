@@ -15,7 +15,7 @@ class Request
 
     public function getID()
     {
-        return is_int($this->ID) ? (int)$this->ID : $this->ID;
+        return is_numeric($this->ID) ? (int)$this->ID : $this->ID;
     }
 
     public function getIP()
