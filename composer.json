@@ -15,6 +15,7 @@
     ],
     "require": {
         "monolog/monolog": "^3.3",
-        "predis/predis": "^2.1"
+        "predis/predis": "^2.1",
+        "vlucas/phpdotenv": "^5.5"
     }
 }

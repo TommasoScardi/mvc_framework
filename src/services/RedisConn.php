@@ -5,6 +5,11 @@ namespace MvcFramework\Services;
 class RedisConn {
     private Predis\Client $conn;
 
+    public function __construct(string $host, string $pwd = null, string $username = null, int $port = 6379)
+    {
+        $this->Open($host, $pwd, $username, $port);
+    }
+
     private function isAlive()
     {
         return $this->conn != null ? (bool)$this->conn->ping() : false; 

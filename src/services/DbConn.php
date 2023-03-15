@@ -4,8 +4,12 @@ namespace MvcFramework\Services;
 
 use mysqli;
 
-class DbConn {
+class DbConn
+{
     private mysqli|null $conn;
+
+    public function __construct(string $host, string $username, string $pwd, string $db, int $port = 3306)
+    { $this->Open($host, $username, $pwd, $db, $port); }
 
     private function isAlive()
     {
