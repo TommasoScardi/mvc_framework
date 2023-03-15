@@ -62,7 +62,7 @@ class Response {
         return $this;
     }
 
-    public function json(string $data, int $code = 200)
+    public function json(mixed $data, int $code = 200)
     {
         if ($this->code !== 0) return;
         $jsonString = json_encode($data);
