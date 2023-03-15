@@ -54,11 +54,11 @@ class DbConn
         }
     }
 
-    public function ExecParam(string $sql, string $paramsType, mixed ...$params)
+    public function ExecParam(string $sql, string $paramsType, array $params)
     {
         if ($this->isAlive()) {
             $stmt = $this->conn->prepare($sql);
-            $stmt->bind_param($paramsType, $params);
+            $stmt->bind_param($paramsType, ...$params);
             if (!$stmt->execute())
             {
                 return false;
@@ -86,11 +86,11 @@ class DbConn
         }
     }
 
-    public function QueryParam(string $sql, string $paramsType, mixed ...$params)
+    public function QueryParam(string $sql, string $paramsType, array $params)
     {
         if ($this->isAlive()) {
             $stmt = $this->conn->prepare($sql);
-            $stmt->bind_param($paramsType, $params);
+            $stmt->bind_param($paramsType, ...$params);
             if (!$stmt->execute())
             {
                 return false;
