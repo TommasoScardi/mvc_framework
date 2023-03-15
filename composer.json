@@ -14,6 +14,7 @@
         }
     ],
     "require": {
-        "monolog/monolog": "^3.3"
+        "monolog/monolog": "^3.3",
+        "predis/predis": "^2.1"
     }
 }
