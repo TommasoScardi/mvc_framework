@@ -1,0 +1,19 @@
+{
+    "name": "tommaso/mvc_framework",
+    "description": "template for mvc application in php",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "MvcFramework\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Tommaso",
+            "email": "92218392+TommasoScardi@users.noreply.github.com"
+        }
+    ],
+    "require": {
+        "monolog/monolog": "^3.3"
+    }
+}

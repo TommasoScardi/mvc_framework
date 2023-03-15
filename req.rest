@@ -1,0 +1,16 @@
+GET http://localhost:8080/mvc_framework/
+
+
+###
+POST http://localhost:8080/mvc_framework/template/?id=11
+Content-Type: application/json
+
+{
+
+}
+
+###
+PATCH http://localhost:8080/mvc_framework/template/?id=11
+Content-Type: application/x-www-form-urlencoded
+
+key=value
