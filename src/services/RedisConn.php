@@ -9,7 +9,7 @@ class RedisConn {
     private string $username;
     private int $port;
 
-    private Predis\Client $redisConn;
+    private ?Predis\Client $redisConn = null;
 
     public function __construct(string $host, string $pwd = null, string $username = null, int $port = 6379)
     {

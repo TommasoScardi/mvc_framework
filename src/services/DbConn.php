@@ -13,7 +13,7 @@ class DbConn
     private string $dbName;
     private int $port = 3306;
 
-    private mysqli $dbConn;
+    private ?mysqli $dbConn = null;
 
     public function __construct(string $host, string $username, string $pwd, string $dbName, int $port = 3306)
     {
@@ -52,7 +52,7 @@ class DbConn
         if ($this->dbConn->connect_errno) {
             throw new DbExc("connection faliled ErrorNum =>" . $this->dbConn->connect_errno, DbExc::CODE_CONN_ERROR);
         }
-        return $this->isAlive();
+        return $this;
     }
 
     public function close()
