@@ -17,7 +17,7 @@ class Response {
     public const RES_FORBIDDEN = 403;
     public const RES_NOT_FOUND = 404;
 
-    public const RES_SERVER_ERROR = 404;
+    public const RES_SERVER_ERROR = 400;
 
     private string $resBuffer = "";
     private int $code = 0;
@@ -81,7 +81,6 @@ class Response {
     }
 
     public function error(int $code, ?string $message = null) {
-        if ($this->code !== 0) return;
         $this->code = $code;
         if ($message !== null) {
             $this->resBuffer = '{"message": "'.$message.'"}';
