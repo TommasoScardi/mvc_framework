@@ -3,6 +3,7 @@
 namespace MvcFramework\Controllers;
 
 use MvcFramework\Core\Controller;
+use MvcFramework\Core\Method;
 use MvcFramework\Core\Request;
 use MvcFramework\Core\Response;
 use MvcFramework\Services\DbConn;
@@ -17,12 +18,13 @@ class DbController extends Controller
 
     public function Index(Request $req, Response $res)
     {
-        $res->json($this->db->query("SELECT * from tab;"));
+        $res->json($this->db->open()->query("SELECT * from tab;"));
     }
 
     public function Find(Request $req, Response $res)
     {
+        Method::registerMethod($req, Method::METHOD_GET, Method::METHOD_POST);
         $id = $req->getID();
-        $res->json($this->db->queryParam("SELECT * from test.tab WHERE id = ?;", "i", [$id]));
+        $res->json($this->db->open()->queryParam("SELECT * from test.tab WHERE id = ?;", "i", [$id]));
     }
 }
