@@ -36,14 +36,8 @@ class Request
         return $_SERVER['REMOTE_ADDR'];
     }
 
-    /**
-     * Parse the requested path into an array of controller, action - false on failure
-     *
-     * @return array|false ["controller" => controller, "action"=> action]
-     */
-    public function getPath()
+    public function getReqURL()
     {
-        //{controller}/{action}/{id}
         $path = $_SERVER["REQUEST_URI"] ?? '/';
         if (!empty(Application::$SUBROOT_PATH)) {
             $path = str_replace(Application::$SUBROOT_PATH, "", $path);
@@ -53,9 +47,20 @@ class Request
         if ($pos !== false) {
             $path = substr($path, 0, $pos);
         }
+        return $path;
+    }
 
-        $pathArray = explode('/', $path);
+    /**
+     * Parse the requested path into an array of controller, action - false on failure
+     *
+     * @return array|false ["controller" => controller, "action"=> action]
+     */
+    public function getPath()
+    {
+        //{controller}/{action}/{id}
+        $pathArray = explode('/', $this->getReqURL());
         $controllerAction = array_values(array_filter($pathArray));
+        
         if (count($controllerAction) === 0) {
             return ["controller" => self::DEFAULT_CONTROLLER, "action" => self::DEFAULT_ACTION];
         }
