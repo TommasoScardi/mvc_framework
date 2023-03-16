@@ -4,11 +4,18 @@ namespace MvcFramework\Core;
 
 use Exception;
 use MvcFramework\Exceptions\DbExc;
-use MvcFramework\Exceptions\HttpExc;
 use MvcFramework\Services\AppLogger;
 
+/**
+ * MVC Application EndPoint - Manage all requests and resources (services)
+ */
 class Application
 {
+    /**
+     * Static Logger for Request ERROR logs
+     *
+     * @var AppLogger
+     */
     private static AppLogger $RequestLogger;
 
     public static string $ROOT_PATH;
@@ -18,8 +25,15 @@ class Application
     public Response $response;
     public Router $router;
 
-    public array $services;
+    private array $services;
     
+    /**
+     * Application CTOR
+     *
+     * @param string $rootPath app absolute path
+     * @param string $subPath any subpath in case the app is in a dir
+     * @param string $nameLogFile the name of the log Request file
+     */
     public function __construct(string $rootPath, string $subPath, string $nameLogFile)
     {
         self::$ROOT_PATH = $rootPath;
@@ -31,10 +45,23 @@ class Application
         $this->services = [];
     }
 
-    public function registerService(string $name, mixed $service) {
+    /**
+     * It permits to register a service like the dbConnection class
+     *
+     * @param string $name sevice name
+     * @param mixed $service service instance
+     * @return void
+     */
+    public function registerService(string $name, mixed $service)
+    {
         $this->services[$name] = $service;
     }
 
+    /**
+     * Function to handle all backend requests
+     *
+     * @return void
+     */
     public function run()
     {
         try {
@@ -52,6 +79,11 @@ class Application
         }
     }
 
+    /**
+     * Gets the static logger instance
+     *
+     * @return \Monolog\Logger
+     */
     public static function log()
     {
         return self::$RequestLogger->log();

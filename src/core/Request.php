@@ -2,6 +2,9 @@
 
 namespace MvcFramework\Core;
 
+/**
+ * Request class - store all request data (query sting, body, id)
+ */
 class Request
 {
     private const DEFAULT_CONTROLLER = "Home";
@@ -13,16 +16,31 @@ class Request
 
     private string $ID = "";
 
+    /**
+     * Gets the ID contained in the query string
+     *
+     * @return int|string
+     */
     public function getID()
     {
         return is_numeric($this->ID) ? (int)$this->ID : $this->ID;
     }
 
+    /**
+     * Gets the IP of the client
+     *
+     * @return string
+     */
     public function getIP()
     {
         return $_SERVER['REMOTE_ADDR'];
     }
 
+    /**
+     * Parse the requested path into an array of controller, action - false on failure
+     *
+     * @return array|false ["controller" => controller, "action"=> action]
+     */
     public function getPath()
     {
         //{controller}/{action}/{id}
@@ -56,25 +74,50 @@ class Request
         }
     }
 
+    /**
+     * Gets request method (get, post, delete)
+     *
+     * @return string
+     */
     public function method()
     {
         return strtolower($_SERVER["REQUEST_METHOD"]);
     }
 
+    /**
+     * Verify if method is get
+     *
+     * @return boolean
+     */
     public function isGet() {
         return $this->method() === "get";
     }
 
+    /**
+     * Verify if method is post
+     *
+     * @return boolean
+     */
     public function isPost()
     {
         return $this->method() === "post";
     }
 
+    /**
+     * Verify if body in in application/json
+     *
+     * @return boolean
+     */
     private function isJsonBody()
     {
         return apache_request_headers()["content-type"] === "application/json";
     }
 
+    /**
+     * Gets the JSON body, before call verify if body is in json
+     *
+     * @return array
+     */
     private function getJsonBody()
     {
         $rawJson = file_get_contents('php://input');
@@ -89,6 +132,11 @@ class Request
         return $jsonData;
     }
 
+    /**
+     * Gets sanitized query string as assoc array 
+     *
+     * @return array
+     */
     public function getQS()
     {
         $qs = [];
@@ -105,6 +153,11 @@ class Request
         return $qs;
     }
 
+    /**
+     * Gets the request body (json, form-encoded)
+     *
+     * @return array
+     */
     public function getBody()
     {
         $body = [];

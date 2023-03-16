@@ -4,17 +4,32 @@ namespace MvcFramework\Core;
 
 use ReflectionClass;
 
+/**
+ * Router class - Parse and route all the requests
+ */
 class Router
 {
     public Request $req;
     public Response $res;
 
+    /**
+     * Router CTOR
+     *
+     * @param Request $request
+     * @param Response $response
+     */
     function __construct(Request $request, Response $response)
     {
         $this->req = $request;
         $this->res = $response;
     }
 
+    /**
+     * Parse URL path and determine witch controller and action are requested
+     *
+     * @param array $services the service array
+     * @return void
+     */
     public function resolve(array $services)
     {
         $request = $this->req->getPath(); //returns array with controller and action keys of false on failure
