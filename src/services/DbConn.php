@@ -13,7 +13,7 @@ class DbConn
     private string $dbName;
     private int $port = 3306;
 
-    private mysqli|null $dbConn;
+    private mysqli $dbConn;
 
     public function __construct(string $host, string $username, string $pwd, string $dbName, int $port = 3306)
     {
