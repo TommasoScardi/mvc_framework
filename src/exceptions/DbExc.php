@@ -1,7 +1,7 @@
 <?php
 
 
-namespace MvcFramework\Services;
+namespace MvcFramework\Exceptions;
 
 use Exception;
 use Throwable;
