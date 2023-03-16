@@ -24,7 +24,7 @@ class RedisConn {
         return $this->redisConn != null ? (bool)$this->redisConn->ping() : false; 
     }
 
-    public function Open()
+    public function open()
     {
         if ($this->host == null || $this->host == "")
         {
@@ -45,20 +45,20 @@ class RedisConn {
         return (bool)$this->redisConn->ping();
     }
 
-    public function Close()
+    public function close()
     {
         if ($this->isAlive()) {
             $this->redisConn->close();
         }
     }
 
-    public function Dispose()
+    public function dispose()
     {
-        $this->Close();
+        $this->close();
         $this->redisConn = null;
     }
 
-    public function Get(string $key)
+    public function get(string $key)
     {
         if ($this->isAlive()) {
             $res = $this->redisConn->get($key);
@@ -71,7 +71,7 @@ class RedisConn {
         }
     }
 
-    public function Set(string $key, string $value, int $expSecTime = 0)
+    public function set(string $key, string $value, int $expSecTime = 0)
     {
         if ($this->isAlive())
         {
@@ -86,7 +86,7 @@ class RedisConn {
         }
     }
 
-    public function Delete(string $key)
+    public function delete(string $key)
     {
         if ($this->isAlive()) {
             return (bool)$this->redisConn->del($key);
@@ -95,7 +95,7 @@ class RedisConn {
         }
     }
 
-    public function RenewExpiration(string $key, int $expSecTime)
+    public function renewExpiration(string $key, int $expSecTime)
     {
         if ($this->isAlive()) {
             return (bool)$this->redisConn->expire($key, $expSecTime);
@@ -104,7 +104,7 @@ class RedisConn {
         }
     }
 
-    public function HGet(string $key, string $field)
+    public function hGet(string $key, string $field)
     {
         if ($this->isAlive()) {
             $res = $this->redisConn->hget($key, $field);
@@ -117,7 +117,7 @@ class RedisConn {
         }
     }
 
-    public function HSet(string $key, string $field, string $value, int $expSecTime = 0)
+    public function hSet(string $key, string $field, string $value, int $expSecTime = 0)
     {
         if ($this->isAlive()) {
             $this->redisConn->hset($key, $field, $value);
@@ -129,7 +129,7 @@ class RedisConn {
         }
     }
 
-    public function HDel(string $key)
+    public function hDel(string $key)
     {
         if ($this->isAlive()) {
             return $this->redisConn->hdel($key);

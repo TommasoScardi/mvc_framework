@@ -29,7 +29,19 @@ class DbConn
         return $this->dbConn != null ? (bool)$this->dbConn->ping() : false;
     }
 
-    public function Open()
+    private static function paramType($param)
+    {
+        switch (gettype($param)) {
+            case "integer":
+                return 'i';
+            case "double":
+                return 'd';
+            default:
+                return 's';
+        }
+    }
+
+    public function open()
     {
         if ($this->dbConn == null) {
             $this->dbConn = new mysqli($this->host, $this->username, $this->pwd, $this->dbName, $this->port);
@@ -43,19 +55,19 @@ class DbConn
         return $this->isAlive();
     }
 
-    public function Close()
+    public function close()
     {
         if ($this->isAlive()) {
             $this->dbConn->close();
         }
     }
 
-    public function Dispose() {
-        $this->Close();
+    public function dispose() {
+        $this->close();
         $this->dbConn = null;
     }
 
-    public function Exec(string $sql)
+    public function exec(string $sql)
     {
         if ($this->isAlive())
         {
@@ -75,7 +87,7 @@ class DbConn
         }
     }
 
-    public function ExecParam(string $sql, string $paramsType, array $params)
+    public function execParam(string $sql, string $paramsType, array $params)
     {
         if ($this->isAlive()) {
             $stmt = $this->dbConn->prepare($sql);
@@ -92,7 +104,7 @@ class DbConn
         }
     }
 
-    public function Query(string $sql)
+    public function query(string $sql)
     {
         if ($this->isAlive()) {
             $res = $this->dbConn->query($sql);
@@ -107,7 +119,7 @@ class DbConn
         }
     }
 
-    public function QueryParam(string $sql, string $paramsType, array $params)
+    public function queryParam(string $sql, string $paramsType, array $params)
     {
         if ($this->isAlive()) {
             $stmt = $this->dbConn->prepare($sql);

@@ -17,12 +17,12 @@ class DbController extends Controller
 
     public function Index(Request $req, Response $res)
     {
-        $res->json($this->db->Query("SELECT * from tab;"));
+        $res->json($this->db->query("SELECT * from tab;"));
     }
 
     public function Find(Request $req, Response $res)
     {
         $id = $req->getID();
-        $res->json($this->db->QueryParam("SELECT * from test.tab WHERE id = ?;", "i", [$id]));
+        $res->json($this->db->queryParam("SELECT * from test.tab WHERE id = ?;", "i", [$id]));
     }
 }
