@@ -3,46 +3,67 @@
 namespace MvcFramework\Services;
 
 use mysqli;
+use MvcFramework\Exceptions\DbExc;
 
 class DbConn
 {
-    private mysqli|null $conn;
+    private string $host;
+    private string $username;
+    private string $pwd;
+    private string $dbName;
+    private int $port = 3306;
 
-    public function __construct(string $host, string $username, string $pwd, string $db, int $port = 3306)
-    { $this->Open($host, $username, $pwd, $db, $port); }
+    private mysqli|null $dbConn;
+
+    public function __construct(string $host, string $username, string $pwd, string $dbName, int $port = 3306)
+    {
+        $this->host = $host;
+        $this->username = $username;
+        $this->pwd = $pwd;
+        $this->dbName = $dbName;
+        $this->port = $port;
+    }
 
     private function isAlive()
     {
-        return $this->conn != null ? (bool)$this->conn->ping() : false;
+        return $this->dbConn != null ? (bool)$this->dbConn->ping() : false;
     }
 
-    public function Open(string $host, string $username, string $pwd, string $db, int $port = 3306)
+    public function Open()
     {
-        $this->conn = new mysqli($host, $username, $pwd, $db, $port);
-
-        if ($this->conn->connect_errno) {
-            throw new DbExc("connection faliled ErrorNum =>" . $this->conn->connect_errno, DbExc::CODE_CONN_ERROR);
+        if ($this->dbConn == null) {
+            $this->dbConn = new mysqli($this->host, $this->username, $this->pwd, $this->dbName, $this->port);
+        } else {
+            $this->dbConn->connect();
         }
-        return (bool)$this->conn->ping();
+
+        if ($this->dbConn->connect_errno) {
+            throw new DbExc("connection faliled ErrorNum =>" . $this->dbConn->connect_errno, DbExc::CODE_CONN_ERROR);
+        }
+        return $this->isAlive();
     }
 
     public function Close()
     {
-        if ($this->conn->ping()) {
-            $this->conn->close();
+        if ($this->isAlive()) {
+            $this->dbConn->close();
         }
-        $this->conn = null;
+    }
+
+    public function Dispose() {
+        $this->Close();
+        $this->dbConn = null;
     }
 
     public function Exec(string $sql)
     {
         if ($this->isAlive())
         {
-            if ($this->conn->query($sql))
+            if ($this->dbConn->query($sql))
             {
                 return true;
             }
-            if ($this->conn->errno)
+            if ($this->dbConn->errno)
             {
                 return false;
             }
@@ -57,7 +78,7 @@ class DbConn
     public function ExecParam(string $sql, string $paramsType, array $params)
     {
         if ($this->isAlive()) {
-            $stmt = $this->conn->prepare($sql);
+            $stmt = $this->dbConn->prepare($sql);
             $stmt->bind_param($paramsType, ...$params);
             if (!$stmt->execute())
             {
@@ -74,7 +95,7 @@ class DbConn
     public function Query(string $sql)
     {
         if ($this->isAlive()) {
-            $res = $this->conn->query($sql);
+            $res = $this->dbConn->query($sql);
             $resultSet = $res->fetch_all(MYSQLI_ASSOC);
             if(!$resultSet || $res->num_rows == 0)
             {
@@ -89,7 +110,7 @@ class DbConn
     public function QueryParam(string $sql, string $paramsType, array $params)
     {
         if ($this->isAlive()) {
-            $stmt = $this->conn->prepare($sql);
+            $stmt = $this->dbConn->prepare($sql);
             $stmt->bind_param($paramsType, ...$params);
             if (!$stmt->execute())
             {
