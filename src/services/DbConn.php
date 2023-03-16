@@ -45,6 +45,7 @@ class DbConn
     {
         if ($this->dbConn == null) {
             $this->dbConn = new mysqli($this->host, $this->username, $this->pwd, $this->dbName, $this->port);
+            $this->dbConn->options(MYSQLI_OPT_INT_AND_FLOAT_NATIVE, 1);
         } else {
             $this->dbConn->connect();
         }
