@@ -17,10 +17,7 @@ class AppLogger
         $this->logger->pushHandler(new StreamHandler(Application::$ROOT_PATH . "log/$name", Level::Warning));
     }
 
-    /**
-     * Get the value of logger
-     */ 
-    public function getLogger()
+    public function log()
     {
         return $this->logger;
     }

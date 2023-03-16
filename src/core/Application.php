@@ -54,6 +54,6 @@ class Application
 
     public static function log()
     {
-        return self::$RequestLogger->getLogger();
+        return self::$RequestLogger->log();
     }
 }
