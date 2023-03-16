@@ -80,10 +80,13 @@ class Response {
         $this->code = $code;
     }
 
-    public function error(int $code, ?string $message = null) {
+    public function error(int $code, ?string $message = null, bool $echoMessage = true, bool $log = false, ?array $context = null) {
         $this->code = $code;
-        if ($message !== null) {
+        if ($message != null && $echoMessage) {
             $this->resBuffer = '{"message": "'.$message.'"}';
+        }
+        if ($message != null && $log) {
+            Application::log()->error($message, $context ?? []);
         }
     }
 }
