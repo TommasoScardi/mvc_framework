@@ -2,7 +2,6 @@
 
 namespace MvcFramework\Services;
 
-use Monolog\Level;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use MvcFramework\Core\Application;
@@ -22,7 +21,7 @@ class AppLogger
     public function __construct($name = "app.log")
     {
         $this->logger = new Logger("logger");
-        $this->logger->pushHandler(new StreamHandler(Application::$ROOT_PATH . "log/$name", Level::Warning));
+        $this->logger->pushHandler(new StreamHandler(Application::$ROOT_PATH . "log/$name", Logger::WARNING));
     }
 
     /**
