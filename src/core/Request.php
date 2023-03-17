@@ -2,6 +2,9 @@
 
 namespace MvcFramework\Core;
 
+use MvcFramework\Core\Exceptions\FileUploadExc;
+use MvcFramework\Core\Exceptions\NotAllowedHttpMethodExc;
+
 /**
  * Request class - store all request data (query sting, body, id)
  */
@@ -84,6 +87,11 @@ class Request
         }
     }
 
+    private function getHeaders()
+    {
+        return array_change_key_case(apache_request_headers());
+    }
+
     /**
      * Gets request method (get, post, delete)
      *
@@ -95,32 +103,41 @@ class Request
     }
 
     /**
-     * Verify if method is get
+     * restrict action requests to method registered - throws exc on unregistered method action
      *
-     * @return boolean
+     * @param string ...$methods all methods allowed
+     * @return void
+     * @throws NotAllowedHttpMethodExc if the action is requested with a non registered method
      */
-    public function isGet() {
-        return $this->method() === self::METHOD_GET;
-    }
-
-    /**
-     * Verify if method is post
-     *
-     * @return boolean
-     */
-    public function isPost()
+    public function registerMethods(string ...$methods)
     {
-        return $this->method() === self::METHOD_POST;
+        $methodUsed = array_filter($methods, fn (string $elem) => $elem === $this->method());
+
+        if (count($methodUsed) > 0) {
+            return;
+        } else {
+            throw new NotAllowedHttpMethodExc("method " . $this->method() . " not allowed with action requested");
+        }
     }
 
     /**
-     * Verify if body in in application/json
+     * Verify if body is in application/json
      *
      * @return boolean
      */
     private function isJsonBody()
     {
-        return apache_request_headers()["content-type"] === "application/json";
+        return $this->getHeaders()["content-type"] === "application/json";
+    }
+
+    /**
+     * Verify if a file upload is incoming
+     *
+     * @return boolean
+     */
+    private function isFileUploading()
+    {
+        return explode(';', $this->getHeaders()["content-type"])[0] === "multipart/form-data";
     }
 
     /**
@@ -191,14 +208,11 @@ class Request
         return $body;
     }
 
-    public function registerMethods(string ...$methods)
+    public function saveFileUpload(string $fileName, string $relativePath = "/uploads/")
     {
-        $methodUsed = array_filter($methods, fn(string $elem) => $elem === $this->method());
-
-        if (count($methodUsed) > 0) {
-            return;
-        } else {
-            throw new NotAllowedHttpMethod("method " . $this->method() . " not allowed with action requested");
+        if (!$this->isFileUploading())
+        {
+            throw new FileUploadExc("file uploading not declared in request headers");
         }
     }
 }

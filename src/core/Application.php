@@ -2,9 +2,13 @@
 
 namespace MvcFramework\Core;
 
-use Exception;
 use MvcFramework\Exceptions\DbExc;
 use MvcFramework\Services\AppLogger;
+
+use MvcFramework\Core\Exceptions\NotAllowedHttpMethodExc;
+use MvcFramework\Core\Exceptions\FileUploadExc;
+
+use Exception;
 
 /**
  * MVC Application EndPoint - Manage all requests and resources (services)
@@ -70,8 +74,13 @@ class Application
         catch(DbExc $dbExc) {
             $this->response->error(500, "DBEXCEPTION:". strval($dbExc), true, true);
         }
-        catch(NotAllowedHttpMethod $e) {
-            $this->response->error(500, $e->getMessage(), true, true, $this->request->getPath());
+        catch(FileUploadExc $fileExc) {
+            $this->response->error(0, $fileExc->getMessage(), true, true,
+            ["req_url" => $this->request->getReqURL(), "file_name" => $fileExc->fileName]);
+        }
+        catch(NotAllowedHttpMethodExc $e) {
+            $this->response->error(500, $e->getMessage(), true, true,
+            ["req_url" => $this->request->getReqURL()]);
         }
         catch(Exception $e) {
             $this->response->error(500, $e->getMessage());
