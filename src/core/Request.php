@@ -191,7 +191,7 @@ class Request
         return $body;
     }
 
-    public function registerMethod(string ...$methods)
+    public function registerMethods(string ...$methods)
     {
         $methodUsed = array_filter($methods, fn(string $elem) => $elem === $this->method());
 

@@ -23,7 +23,7 @@ class DbController extends Controller
 
     public function Find(Request $req, Response $res)
     {
-        $req->registerMethod(Request::METHOD_GET, Request::METHOD_POST);
+        $req->registerMethods(Request::METHOD_GET, Request::METHOD_POST);
         $id = $req->getID();
         $res->json($this->db->open()->queryParam("SELECT * from test.tab WHERE id = ?;", "i", [$id]));
     }
