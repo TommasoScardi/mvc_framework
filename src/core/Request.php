@@ -14,6 +14,11 @@ class Request
     public const ACTION = 1;
     public const ID = 2;
 
+    public const METHOD_GET = "get";
+    public const METHOD_POST = "post";
+    public const METHOD_PATCH = "patch";
+    public const METHOD_DELETE = "delete";
+
     private string $ID = "";
 
     /**
@@ -95,7 +100,7 @@ class Request
      * @return boolean
      */
     public function isGet() {
-        return $this->method() === "get";
+        return $this->method() === self::METHOD_GET;
     }
 
     /**
@@ -105,7 +110,7 @@ class Request
      */
     public function isPost()
     {
-        return $this->method() === "post";
+        return $this->method() === self::METHOD_POST;
     }
 
     /**
@@ -146,10 +151,10 @@ class Request
     {
         $qs = [];
 
-        if ($this->method() === "get"
-        || $this->method() === "post"
-        || $this->method() === "patch"
-        || $this->method() === "delete") {
+        if ($this->method() === self::METHOD_GET
+        || $this->method() === self::METHOD_POST
+        || $this->method() === self::METHOD_PATCH
+        || $this->method() === self::METHOD_DELETE) {
             foreach ($_GET as $key => $val) {
                 $qs[$key] = filter_input(INPUT_GET, $key, FILTER_SANITIZE_SPECIAL_CHARS);
             }
@@ -166,7 +171,7 @@ class Request
     public function getBody()
     {
         $body = [];
-        if ($this->method() === "post") {
+        if ($this->method() === self::METHOD_POST) {
             if ($this->isJsonBody()) {
                 $body = filter_var_array($this->getJsonBody(), FILTER_SANITIZE_SPECIAL_CHARS);
             }
@@ -177,12 +182,23 @@ class Request
             }
         }
 
-        if ($this->method() === "patch") {
+        if ($this->method() === self::METHOD_PATCH) {
             if ($this->isJsonBody()) {
                 $body = filter_var_array($this->getJsonBody(), FILTER_SANITIZE_SPECIAL_CHARS);
             }
         }
 
         return $body;
+    }
+
+    public function registerMethod(string ...$methods)
+    {
+        $methodUsed = array_filter($methods, fn(string $elem) => $elem === $this->method());
+
+        if (count($methodUsed) > 0) {
+            return;
+        } else {
+            throw new NotAllowedHttpMethod("method " . $this->method() . " not allowed with action requested");
+        }
     }
 }

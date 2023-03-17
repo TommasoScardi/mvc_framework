@@ -70,7 +70,7 @@ class Application
         catch(DbExc $dbExc) {
             $this->response->error(500, "DBEXCEPTION:". strval($dbExc), true, true);
         }
-        catch(UnRegisteredMethodExc $e) {
+        catch(NotAllowedHttpMethod $e) {
             $this->response->error(500, $e->getMessage(), true, true, $this->request->getPath());
         }
         catch(Exception $e) {
