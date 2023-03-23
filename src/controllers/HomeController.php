@@ -10,7 +10,7 @@ use MvcFramework\Services\AppLogger;
 
 class HomeController extends Controller
 {
-    private readonly AppLogger $logger;
+    private AppLogger $logger;
     public function __construct(AppLogger $logger)
     {
         $this->logger = $logger;

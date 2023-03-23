@@ -7,13 +7,16 @@ use MvcFramework\Core\Method;
 use MvcFramework\Core\Request;
 use MvcFramework\Core\Response;
 use MvcFramework\Services\DbConn;
+use MvcFramework\Services\RedisConn;
 
 class DbController extends Controller
 {
-    private readonly DbConn $db;
-    public function __construct(DbConn $db)
+    private DbConn $db;
+    private RedisConn $redis;
+    public function __construct(DbConn $db, RedisConn $redis)
     {
         $this->db = $db;
+        $this->redis = $redis;
     }
 
     public function Index(Request $req, Response $res)
