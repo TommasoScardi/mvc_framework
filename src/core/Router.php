@@ -42,7 +42,7 @@ class Router
 
         $className = "MvcFramework\\Controllers\\" . $controller . "Controller"; 
         if (!class_exists($className)) {
-            Application::log()->error("HTTP-404: Requested controller class not founded", ["controller" => $controller])
+            Application::log()->error("HTTP-404: Requested controller class not founded", ["controller" => $controller]);
             $this->res->error(404, "Requested controller class not founded");
             return;
         }
