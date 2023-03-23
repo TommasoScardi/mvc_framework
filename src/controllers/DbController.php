@@ -40,6 +40,7 @@ class DbController extends Controller
         else
         {
             $res->write("cache")->end($cache);
+            $this->redis->renewExpiration("home_find_$id", 10);
         }
     }
 }
