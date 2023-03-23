@@ -27,7 +27,19 @@ class DbController extends Controller
     public function Find(Request $req, Response $res)
     {
         $req->registerMethods(Request::METHOD_GET, Request::METHOD_POST);
+
         $id = $req->getID();
-        $res->json($this->db->open()->queryParam("SELECT * from test.tab WHERE id = ?;", "i", [$id]));
+        $cache = $this->redis->open()->get("home_find_$id");
+        if (!$cache)
+        {
+            $data = $this->db->open()->queryParam("SELECT * from test.tab WHERE id = ?;", "i", [$id]);
+            $this->redis->set("home_find_$id", json_encode($data), 10);
+            $res->write("db")->end(json_encode($data));
+            $res->json($data);
+        }
+        else
+        {
+            $res->write("cache")->end($cache);
+        }
     }
 }
