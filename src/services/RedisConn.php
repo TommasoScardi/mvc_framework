@@ -2,36 +2,55 @@
 
 namespace MvcFramework\Services;
 
+use Predis\Client as RedisClient;
+
 use MvcFramework\Exceptions\DbExc;
 
 class RedisConn
 {
     private string $host;
-    private string $pwd;
-    private string $username;
+    private ?string $pwd;
+    private ?string $username;
     private int $port;
 
-    private ?Predis\Client $redisConn = null;
+    private ?RedisClient $redisConn = null;
 
-    public function __construct(string $host, string $pwd = null, string $username = null, int $port = 6379)
+    /**
+     * Set the internal auth data, needs to connect manually with open()
+     * @param string $host the host where redis server is in execution
+     * @param string|null $pwd the server password (if server is configured with ACL it needs an username the user password)
+     * @param string|null $username needed if ACL is configured, the username of the pwd
+     * @param int $port server port
+     * @throws DbExc if no host is provided
+     * @return void 
+     */
+    public function __construct(string $host, ?string $pwd = null, ?string $username = null, int $port = 6379)
     {
+        if ($host == null || $host == "")
+        {
+            throw new DbExc("No hostname provided when connecting to redis", DbExc::CODE_CONN_ERROR);
+        }
         $this->host = $host;
         $this->username = $username;
         $this->pwd = $pwd;
         $this->port = $port;
     }
 
+    /**
+     * Verify if connection is alive pinging the server
+     * @return bool
+     */
     private function isAlive()
     {
         return $this->redisConn != null ? (bool)$this->redisConn->ping() : false;
     }
 
+    /**
+     * Open the connection
+     * @return object
+     */
     public function open()
     {
-        if ($this->host == null || $this->host == "")
-        {
-            throw new DbExc("No hostname provided when connecting to redis", DbExc::CODE_CONN_ERROR);
-        }
         $connOpt = array("scheme" => "tcp", "host" => $this->host, "port" => $this->port);
         if ($this->pwd != null && $this->pwd != "")
         {
@@ -42,11 +61,15 @@ class RedisConn
             $connOpt["username"] = $this->username;
         }
 
-        $this->redisConn = new Predis\Client($connOpt);
+        $this->redisConn = new RedisClient($connOpt);
 
-        return (bool)$this->redisConn->ping();
+        return $this;
     }
 
+    /**
+     * Closes the connection to the server
+     * @return void 
+     */
     public function close()
     {
         if ($this->isAlive())
@@ -55,12 +78,22 @@ class RedisConn
         }
     }
 
+    /**
+     * Dispose the object closing the connection
+     * @return void 
+     */
     public function dispose()
     {
         $this->close();
         $this->redisConn = null;
     }
 
+    /**
+     * Get a value with a key provided
+     * @param string $key the key string
+     * @return false|string false if nothing is fond, the value otherwise
+     * @throws DbExc if connection is closed
+     */
     public function get(string $key)
     {
         if ($this->isAlive())
@@ -78,6 +111,14 @@ class RedisConn
         }
     }
 
+    /**
+     * Set a value with a gived key
+     * @param string $key the key
+     * @param string $value value
+     * @param int $expSecTime expiration time in seconds
+     * @return void 
+     * @throws DbExc if connection is closed
+     */
     public function set(string $key, string $value, int $expSecTime = 0)
     {
         if ($this->isAlive())
@@ -94,6 +135,12 @@ class RedisConn
         }
     }
 
+    /**
+     * Delete a key from redis
+     * @param string $key the key
+     * @return bool true on success otherwise false
+     * @throws DbExc if connection is closed
+     */
     public function delete(string $key)
     {
         if ($this->isAlive())
@@ -106,6 +153,13 @@ class RedisConn
         }
     }
 
+    /**
+     * Renews the TTL of a gived key
+     * @param string $key the key
+     * @param int $expSecTime the new exp time
+     * @return bool true on success otherwise false
+     * @throws DbExc if connection is closed
+     */
     public function renewExpiration(string $key, int $expSecTime)
     {
         if ($this->isAlive())
@@ -118,6 +172,13 @@ class RedisConn
         }
     }
 
+    /**
+     * Get a DATASET from the redis
+     * @param string $key the master key
+     * @param string $field the field key
+     * @return false|string false if nothing is fond, the value otherwise
+     * @throws DbExc if connection is closed
+     */
     public function hGet(string $key, string $field)
     {
         if ($this->isAlive())
@@ -135,6 +196,15 @@ class RedisConn
         }
     }
 
+    /**
+     * Set a DATASET onto redis
+     * @param string $key the master key
+     * @param string $field the filed key
+     * @param string $value the value
+     * @param int $expSecTime the expiration TTL
+     * @return void 
+     * @throws DbExc if connection is closed
+     */
     public function hSet(string $key, string $field, string $value, int $expSecTime = 0)
     {
         if ($this->isAlive())
@@ -151,6 +221,12 @@ class RedisConn
         }
     }
 
+    /**
+     * Delee all the field in a DATASET
+     * @param string $key the master key
+     * @return int num of field deleted
+     * @throws DbExc if connection is closed
+     */
     public function hDel(string $key)
     {
         if ($this->isAlive())

@@ -15,6 +15,15 @@ class DbConn
 
     private ?mysqli $dbConn = null;
 
+    /**
+     * Set the internal auth data, needs to connect manually with open()
+     * @param string $host 
+     * @param string $username 
+     * @param string $pwd 
+     * @param string $dbName 
+     * @param int $port 
+     * @return void 
+     */
     public function __construct(string $host, string $username, string $pwd, string $dbName, int $port = 3306)
     {
         $this->host = $host;
