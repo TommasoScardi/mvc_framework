@@ -112,18 +112,12 @@ class Response {
      *
      * @param integer $code error status code
      * @param string|null $message message
-     * @param boolean $echoMessage bool to determine if print or not the message to the client
-     * @param boolean $log bool to determine if log the error or not
-     * @param array|null $context error context writed on the log file
      * @return void
      */
-    public function error(int $code, ?string $message = null, bool $echoMessage = true, bool $log = false, ?array $context = null) {
+    public function error(int $code, ?string $message = null) {
         $this->code = $code;
-        if ($message != null && $echoMessage) {
+        if ($message != null) {
             $this->resBuffer = '{"message": "'.$message.'"}';
-        }
-        if ($message != null && $log) {
-            Application::log()->error($message, $context ?? []);
         }
     }
 }
