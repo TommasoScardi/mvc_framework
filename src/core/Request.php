@@ -24,8 +24,6 @@ class Request
     public const METHOD_PATCH = "patch";
     public const METHOD_DELETE = "delete";
 
-    public const UPLOAD_MAX_SIZE = 5000000;
-
     private string $ID = "";
 
     /**
@@ -261,7 +259,7 @@ class Request
             throw new FileUploadExc("the file came not from an upload", $_FILES[$inputName]["tmp_name"]);
         }
 
-        if ($_FILES[$inputName]["size"] > self::UPLOAD_MAX_SIZE)
+        if ($_FILES[$inputName]["size"] > UPLOAD_MAX_SIZE)
         {
             throw new FileUploadExc("exceeded file size limit", $_FILES[$inputName]["tmp_name"]);
         }
