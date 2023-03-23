@@ -72,18 +72,20 @@ class Application
             $this->router->resolve($this->services); //Fills response attribute
         }
         catch(DbExc $dbExc) {
-            $this->response->error(500, "DBEXCEPTION:". strval($dbExc), true, true);
+            self::log()->error("EXC-DB_MYSQLI: ". $dbExc->getMessage(), ["mysqli_code" => $dbExc->getCode()]);
+            $this->response->error(500);
         }
         catch(FileUploadExc $fileExc) {
-            $this->response->error(0, $fileExc->getMessage(), true, true,
-            ["req_url" => $this->request->getReqURL(), "file_name" => $fileExc->fileName]);
+            self::log()->error("EXC-FILEUPLOAD: ". $dbExc->getMessage(), ["req_url" => $this->request->getReqURL(), "file_name" => $fileExc->fileName]);
+            $this->response->error(500);
         }
         catch(NotAllowedHttpMethodExc $e) {
-            $this->response->error(500, $e->getMessage(), true, true,
-            ["req_url" => $this->request->getReqURL()]);
+            self::log()->error("HTTP-405: ". $e->getMessage(), ["req_url" => $this->request->getReqURL()]);
+            $this->response->error(405);
         }
         catch(Exception $e) {
-            $this->response->error(500, $e->getMessage());
+            self::log()->error("EXC: ". $e->getMessage());
+            $this->response->error(500);
         }
         finally {
             http_response_code($this->response->getCode());
