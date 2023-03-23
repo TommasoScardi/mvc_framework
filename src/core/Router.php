@@ -3,6 +3,7 @@
 namespace MvcFramework\Core;
 
 use ReflectionClass;
+use ReflectionMethod;
 
 /**
  * Router class - Parse and route all the requests
