@@ -67,30 +67,31 @@ class Response
     /**
      * Add text to the buffer
      *
-     * @param string $text
-     * @return string
+     * @param mixed $data
+     * @return object
      */
-    public function write(string $text)
+    public function write(mixed $data)
     {
         if ($this->code !== 0) return;
-        $this->resBuffer .= $text;
+        $this->resBuffer .= strval($data);
         return $this;
     }
 
     /**
      * Write JSON to the buffer
      *
-     * @param mixed $data JSON data
+     * @param string|array|object $data JSON data
      * @param integer $code response status code
      * @return void
      */
-    public function json(mixed $data, int $code = 200)
+    public function json(string|array|object $data, int $code = 200)
     {
         if ($this->code !== 0) return;
         $jsonString = json_encode($data);
         if (!$jsonString || empty($jsonString))
         {
             $this->code = 500;
+            return;
         }
         $this->code = $code;
         $this->resBuffer = $jsonString;
@@ -99,14 +100,14 @@ class Response
     /**
      * Write text to the buffer
      *
-     * @param string $text string/data
+     * @param string $data string/data
      * @param integer $code response status code
      * @return void
      */
-    public function end(string $text, int $code = 200)
+    public function end(mixed $data, int $code = 200)
     {
         if ($this->code !== 0) return;
-        $this->resBuffer .= $text;
+        $this->resBuffer .= strval($data);
         $this->code = $code;
     }
 
