@@ -5,6 +5,7 @@ namespace MvcFramework\Controllers;
 use MvcFramework\Core\Controller;
 use MvcFramework\Core\Request;
 use MvcFramework\Core\Response;
+use MvcFramework\Core\Application;
 use MvcFramework\Services\AppLogger;
 
 class HomeController extends Controller
@@ -18,6 +19,11 @@ class HomeController extends Controller
     public function Index(Request $req, Response $res)
     {
         $res->end("hello world");
+    }
+
+    public function Guid(Request $req, Response $res)
+    {
+        $res->end(Application::getGUID());
     }
 
     public function Log(Request $req, Response $res)
