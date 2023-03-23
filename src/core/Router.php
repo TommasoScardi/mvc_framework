@@ -55,8 +55,8 @@ class Router
 
         $unregisteredServices = array_diff($classConstructorParams, array_keys($services));
         if(count($unregisteredServices) > 0) {
-            Application::log()->error("The controller constructor request unavailable/unregistered services", ["services_list" => $unregisteredServices]);
-            $this->res->error(500, "The controller constructor request unavailable/unregistered services");
+            Application::log()->error("HTTP-404: The controller constructor request unavailable/unregistered services", ["services_list" => $unregisteredServices]);
+            $this->res->error(404, "The controller constructor request unavailable/unregistered services");
             return;
         }
 
