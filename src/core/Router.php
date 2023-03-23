@@ -41,15 +41,13 @@ class Router
 
         $className = "MvcFramework\\Controllers\\" . $controller . "Controller"; 
         if (!class_exists($className)) {
-            $this->res->error(404,
-                "Requested controller class not founded",
-                true, true, ["controller" => $controller]);
+            Application::log()->error("Requested controller class not founded", ["controller" => $controller])
+            $this->res->error(404, "Requested controller class not founded");
             return;
         }
         if (!method_exists($className, $action)) {
-            $this->res->error(404,
-                "Requested action not found into controller methods",
-                true, true, ["controller" => $controller, "action" => $action]);
+            Application::log()->error("Requested action not found into controller methods", ["controller" => $controller, "action" => $action]);
+            $this->res->error(404, "Requested action $action not found into controller $controller methods");
             return;
         }
         $classConstructorParams = array_map(function($v) {return $v->name;},
@@ -57,18 +55,17 @@ class Router
 
         $unregisteredServices = array_diff($classConstructorParams, array_keys($services));
         if(count($unregisteredServices) > 0) {
-            $this->res->error(500,
-                "The controller constructor request unavailable/unregistered services",
-                false, true, ["services_list" => $unregisteredServices]);
+            Application::log()->error("The controller constructor request unavailable/unregistered services", ["services_list" => $unregisteredServices]);
+            $this->res->error(500, "The controller constructor request unavailable/unregistered services");
             return;
         }
 
         $depToInject = array_intersect_key($services, array_fill_keys(array_intersect(array_keys($services), $classConstructorParams), null));
         $controllerInstance = new $className(...$depToInject);
         if (call_user_func([$controllerInstance, $action], $this->req, $this->res) === false) {
-            $this->res->error(500,
-                "The action execution resulted in an error OR it returns a value instead using response params",
-                false, true,["controller" => $controller, "action" => $action]);
+            Application::log()->error("The action execution resulted in an error OR it returns a value instead using response params",
+                                      ["controller" => $controller, "action" => $action]);
+            $this->res->error(500, "The action execution resulted in an error OR it returns a value instead using response params");
             return;
         }
     }
