@@ -2,6 +2,8 @@
 
 namespace MvcFramework\Core;
 
+use Exception;
+use finfo;
 use MvcFramework\Core\Exceptions\FileUploadExc;
 use MvcFramework\Core\Exceptions\NotAllowedHttpMethodExc;
 
@@ -21,6 +23,8 @@ class Request
     public const METHOD_POST = "post";
     public const METHOD_PATCH = "patch";
     public const METHOD_DELETE = "delete";
+
+    public const UPLOAD_MAX_SIZE = 5000000;
 
     private string $ID = "";
 
@@ -230,11 +234,69 @@ class Request
         return $body;
     }
 
-    public function saveFileUpload(string $fileName, string $relativePath = "/uploads/")
+    /**
+     * Handle the HTTP file upload
+     * @param string $inputName the name of the HTML field that uploads the file
+     * @param string $fileName the new filename
+     * @param null|array $allowExt the extension allowed like ["jpeg", "jpg", "png", "gif"]
+     * @param string $path the relative dir to upload file, is better if is already created
+     * @return false|string false on error otherwise it returns the new file name
+     * @throws FileUploadExc 
+     * @throws Exception 
+     */
+    public function saveFileUpload(string $inputName, string $fileName, ?array $allowExt =null, string $path = "public/uploads/")
     {
         if (!$this->isFileUploading())
         {
             throw new FileUploadExc("file uploading not declared in request headers");
+        }
+
+        if ($_FILES[$inputName]["error"] != UPLOAD_ERR_OK)
+        {
+            throw new FileUploadExc("upload error, see code for details", null, $_FILES[$inputName]["error"]);
+        }
+
+        if (!is_uploaded_file($_FILES[$inputName]["tmp_name"]))
+        {
+            throw new FileUploadExc("the file came not from an upload", $_FILES[$inputName]["tmp_name"]);
+        }
+
+        if ($_FILES[$inputName]["size"] > self::UPLOAD_MAX_SIZE)
+        {
+            throw new FileUploadExc("exceeded file size limit", $_FILES[$inputName]["tmp_name"]);
+        }
+
+        $fileExt = (new finfo(FILEINFO_EXTENSION))->file($_FILES[$inputName]["tmp_name"]);
+        if ($allowExt !== null && !empty($allowExt))
+        {
+            if (empty(array_filter($allowExt, function($var) use($fileExt) {return $var === $fileExt;})))
+            {
+                throw new FileUploadExc("extension not allowed => $fileExt", $_FILES[$inputName]["tmp_name"]);
+            }
+        }
+
+        
+        $guid = Application::getGUID();
+        if (!$guid)
+        {
+            throw new Exception("generate GUID failed");
+        }
+        
+        $saveFileName = $guid . "_" . $fileName . "." .$fileExt;
+        $uploadDir = Application::$ROOT_PATH . $path;
+        $uploadPath = $uploadDir . $saveFileName;
+        if (!is_dir($uploadDir))
+        {
+            throw new FileUploadExc("no dir found under $uploadDir", $uploadDir);
+        }
+
+        if (!move_uploaded_file($_FILES[$inputName]["tmp_name"], $uploadPath))
+        {
+            return false;
+        }
+        else
+        {
+            return $saveFileName;
         }
     }
 }
