@@ -1,9 +1,11 @@
 <?php
 
 namespace MvcFramework\Services;
+
 use MvcFramework\Exceptions\DbExc;
 
-class RedisConn {
+class RedisConn
+{
     private string $host;
     private string $pwd;
     private string $username;
@@ -21,7 +23,7 @@ class RedisConn {
 
     private function isAlive()
     {
-        return $this->redisConn != null ? (bool)$this->redisConn->ping() : false; 
+        return $this->redisConn != null ? (bool)$this->redisConn->ping() : false;
     }
 
     public function open()
@@ -47,7 +49,8 @@ class RedisConn {
 
     public function close()
     {
-        if ($this->isAlive()) {
+        if ($this->isAlive())
+        {
             $this->redisConn->close();
         }
     }
@@ -60,13 +63,17 @@ class RedisConn {
 
     public function get(string $key)
     {
-        if ($this->isAlive()) {
+        if ($this->isAlive())
+        {
             $res = $this->redisConn->get($key);
-            if (!$res) {
+            if (!$res)
+            {
                 return false;
             }
             return $res;
-        } else {
+        }
+        else
+        {
             throw new DbExc(DbExc::STR_CONN_CLOSED, DbExc::CODE_CONN_CLOSED);
         }
     }
@@ -81,59 +88,77 @@ class RedisConn {
                 $this->redisConn->expire($key, $expSecTime);
             }
         }
-        else {
+        else
+        {
             throw new DbExc(DbExc::STR_CONN_CLOSED, DbExc::CODE_CONN_CLOSED);
         }
     }
 
     public function delete(string $key)
     {
-        if ($this->isAlive()) {
+        if ($this->isAlive())
+        {
             return (bool)$this->redisConn->del($key);
-        } else {
+        }
+        else
+        {
             throw new DbExc(DbExc::STR_CONN_CLOSED, DbExc::CODE_CONN_CLOSED);
         }
     }
 
     public function renewExpiration(string $key, int $expSecTime)
     {
-        if ($this->isAlive()) {
+        if ($this->isAlive())
+        {
             return (bool)$this->redisConn->expire($key, $expSecTime);
-        } else {
+        }
+        else
+        {
             throw new DbExc(DbExc::STR_CONN_CLOSED, DbExc::CODE_CONN_CLOSED);
         }
     }
 
     public function hGet(string $key, string $field)
     {
-        if ($this->isAlive()) {
+        if ($this->isAlive())
+        {
             $res = $this->redisConn->hget($key, $field);
-            if (!$res) {
+            if (!$res)
+            {
                 return false;
             }
             return $res;
-        } else {
+        }
+        else
+        {
             throw new DbExc(DbExc::STR_CONN_CLOSED, DbExc::CODE_CONN_CLOSED);
         }
     }
 
     public function hSet(string $key, string $field, string $value, int $expSecTime = 0)
     {
-        if ($this->isAlive()) {
+        if ($this->isAlive())
+        {
             $this->redisConn->hset($key, $field, $value);
-            if ($expSecTime > 0) {
+            if ($expSecTime > 0)
+            {
                 $this->redisConn->expire($key, $expSecTime);
             }
-        } else {
+        }
+        else
+        {
             throw new DbExc(DbExc::STR_CONN_CLOSED, DbExc::CODE_CONN_CLOSED);
         }
     }
 
     public function hDel(string $key)
     {
-        if ($this->isAlive()) {
+        if ($this->isAlive())
+        {
             return $this->redisConn->hdel($key);
-        } else {
+        }
+        else
+        {
             throw new DbExc(DbExc::STR_CONN_CLOSED, DbExc::CODE_CONN_CLOSED);
         }
     }

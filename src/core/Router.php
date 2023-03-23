@@ -34,33 +34,43 @@ class Router
     public function resolve(array $services)
     {
         $request = $this->req->getPath(); //returns array with controller and action keys of false on failure
-        if ($request === false) {
+        if ($request === false)
+        {
             $this->res->error(404, "Path requested not found!");
             return;
         }
         extract($request);
 
-        $className = "MvcFramework\\Controllers\\" . $controller . "Controller"; 
-        if (!class_exists($className)) {
+        $className = "MvcFramework\\Controllers\\" . $controller . "Controller";
+        if (!class_exists($className))
+        {
             Application::log()->error("HTTP-404: Requested controller class not founded", ["controller" => $controller]);
             $this->res->error(404, "Requested controller class not founded");
             return;
         }
-        if (!method_exists($className, $action)) {
+        if (!method_exists($className, $action))
+        {
             Application::log()->error("HTTP-404: Requested action not found into controller methods", ["controller" => $controller, "action" => $action]);
             $this->res->error(404, "Requested action $action not found into controller $controller methods");
             return;
         }
-        else if (!(new ReflectionMethod($className, $action))->isPublic()) {
+        else if (!(new ReflectionMethod($className, $action))->isPublic())
+        {
             Application::log()->error("HTTP-401: Requested private Controller Method", ["controller" => $controller, "action" => $action]);
             $this->res->error(404, "Requested action $action not found into controller $controller methods");
             return;
         }
-        $classConstructorParams = array_map(function($v) {return $v->name;},
-                    (new ReflectionClass($className))->getConstructor()->getParameters());
+        $classConstructorParams = array_map(
+            function ($v)
+            {
+                return $v->name;
+            },
+            (new ReflectionClass($className))->getConstructor()->getParameters()
+        );
 
         $unregisteredServices = array_diff($classConstructorParams, array_keys($services));
-        if(count($unregisteredServices) > 0) {
+        if (count($unregisteredServices) > 0)
+        {
             Application::log()->error("HTTP-404: The controller constructor request unavailable/unregistered services", ["services_list" => $unregisteredServices]);
             $this->res->error(404, "The controller constructor request unavailable/unregistered services");
             return;
@@ -68,9 +78,12 @@ class Router
 
         $depToInject = array_intersect_key($services, array_fill_keys(array_intersect(array_keys($services), $classConstructorParams), null));
         $controllerInstance = new $className(...$depToInject);
-        if (call_user_func([$controllerInstance, $action], $this->req, $this->res) === false) {
-            Application::log()->error("The action execution resulted in an error OR it returns a value instead using response params",
-                                      ["controller" => $controller, "action" => $action]);
+        if (call_user_func([$controllerInstance, $action], $this->req, $this->res) === false)
+        {
+            Application::log()->error(
+                "The action execution resulted in an error OR it returns a value instead using response params",
+                ["controller" => $controller, "action" => $action]
+            );
             $this->res->error(500, "The action execution resulted in an error OR it returns a value instead using response params");
             return;
         }

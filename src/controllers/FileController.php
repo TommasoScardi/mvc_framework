@@ -11,7 +11,5 @@ class FileController extends Controller
 
     public function Index(Request $req, Response $res)
     {
-        
     }
-
 }

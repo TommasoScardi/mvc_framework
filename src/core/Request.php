@@ -47,12 +47,14 @@ class Request
     public function getReqURL()
     {
         $path = $_SERVER["REQUEST_URI"] ?? '/';
-        if (!empty(Application::$SUBROOT_PATH)) {
-            $path = str_replace(Application::$SUBROOT_PATH, "", $path);
+        if (!empty(Application::$SUBDIR))
+        {
+            $path = str_replace(Application::$SUBDIR, "", $path);
         }
 
         $pos = strpos($path, '?');
-        if ($pos !== false) {
+        if ($pos !== false)
+        {
             $path = substr($path, 0, $pos);
         }
         return $path;
@@ -68,21 +70,26 @@ class Request
         //{controller}/{action}/{id}
         $pathArray = explode('/', $this->getReqURL());
         $controllerAction = array_values(array_filter($pathArray));
-        
-        if (count($controllerAction) === 0) {
+
+        if (count($controllerAction) === 0)
+        {
             return ["controller" => self::DEFAULT_CONTROLLER, "action" => self::DEFAULT_ACTION];
         }
-        else if (count($controllerAction) === 1) {
+        else if (count($controllerAction) === 1)
+        {
             return ["controller" => $controllerAction[self::CONTROLLER], "action" => self::DEFAULT_ACTION];
         }
-        else if (count($controllerAction) === 2) {
+        else if (count($controllerAction) === 2)
+        {
             return ["controller" => $controllerAction[self::CONTROLLER], "action" => $controllerAction[self::ACTION]];
         }
-        else if (count($controllerAction) === 3 && (is_numeric($controllerAction[self::ACTION]) || is_string($controllerAction[self::ACTION]))) {
+        else if (count($controllerAction) === 3 && (is_numeric($controllerAction[self::ACTION]) || is_string($controllerAction[self::ACTION])))
+        {
             $this->ID = $controllerAction[self::ID];
             return ["controller" => $controllerAction[self::CONTROLLER], "action" => $controllerAction[self::ACTION]];
         }
-        else {
+        else
+        {
             return false;
         }
     }
@@ -113,9 +120,12 @@ class Request
     {
         $methodUsed = array_filter($methods, fn (string $elem) => $elem === $this->method());
 
-        if (count($methodUsed) > 0) {
+        if (count($methodUsed) > 0)
+        {
             return;
-        } else {
+        }
+        else
+        {
             throw new NotAllowedHttpMethodExc("method " . $this->method() . " not allowed with action requested");
         }
     }
@@ -148,12 +158,14 @@ class Request
     private function getJsonBody()
     {
         $rawJson = file_get_contents('php://input');
-        if (empty($rawJson)) {
+        if (empty($rawJson))
+        {
             return false;
         }
 
         $jsonData = json_decode($rawJson, true);
-        if ($jsonData === null) {
+        if ($jsonData === null)
+        {
             return false;
         }
         return $jsonData;
@@ -168,11 +180,15 @@ class Request
     {
         $qs = [];
 
-        if ($this->method() === self::METHOD_GET
-        || $this->method() === self::METHOD_POST
-        || $this->method() === self::METHOD_PATCH
-        || $this->method() === self::METHOD_DELETE) {
-            foreach ($_GET as $key => $val) {
+        if (
+            $this->method() === self::METHOD_GET
+            || $this->method() === self::METHOD_POST
+            || $this->method() === self::METHOD_PATCH
+            || $this->method() === self::METHOD_DELETE
+        )
+        {
+            foreach ($_GET as $key => $val)
+            {
                 $qs[$key] = filter_input(INPUT_GET, $key, FILTER_SANITIZE_SPECIAL_CHARS);
             }
         }
@@ -188,19 +204,25 @@ class Request
     public function getBody()
     {
         $body = [];
-        if ($this->method() === self::METHOD_POST) {
-            if ($this->isJsonBody()) {
+        if ($this->method() === self::METHOD_POST)
+        {
+            if ($this->isJsonBody())
+            {
                 $body = filter_var_array($this->getJsonBody(), FILTER_SANITIZE_SPECIAL_CHARS);
             }
-            else {
-                foreach ($_POST as $key => $value) {
+            else
+            {
+                foreach ($_POST as $key => $value)
+                {
                     $body[$key] = filter_input(INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS);
                 }
             }
         }
 
-        if ($this->method() === self::METHOD_PATCH) {
-            if ($this->isJsonBody()) {
+        if ($this->method() === self::METHOD_PATCH)
+        {
+            if ($this->isJsonBody())
+            {
                 $body = filter_var_array($this->getJsonBody(), FILTER_SANITIZE_SPECIAL_CHARS);
             }
         }

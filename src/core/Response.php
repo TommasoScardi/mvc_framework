@@ -5,7 +5,8 @@ namespace MvcFramework\Core;
 /**
  * Response class - Handle sever response - contains all request codes
  */
-class Response {
+class Response
+{
     private const RES_CODE_MIN = 100;
     private const RES_CODE_MAX = 600;
 
@@ -14,7 +15,7 @@ class Response {
     public const RES_NO_CONTENT = 204;
 
     public const RES_REDIRECT = 301;
-    
+
     public const RES_BAD_REQ = 400;
     public const RES_UNAUTH = 401;
     public const RES_FORBIDDEN = 403;
@@ -42,7 +43,8 @@ class Response {
      */
     public function setCode(int $code)
     {
-        if ($code <= self::RES_CODE_MIN || $code >= self::RES_CODE_MAX) {
+        if ($code <= self::RES_CODE_MIN || $code >= self::RES_CODE_MAX)
+        {
             $this->code = Response::RES_SERVER_ERROR;
             $this->resBuffer = '{"message": "server error, status code must be between min and max"}';
             return;
@@ -86,7 +88,8 @@ class Response {
     {
         if ($this->code !== 0) return;
         $jsonString = json_encode($data);
-        if (!$jsonString || empty($jsonString)) {
+        if (!$jsonString || empty($jsonString))
+        {
             $this->code = 500;
         }
         $this->code = $code;
@@ -114,10 +117,12 @@ class Response {
      * @param string|null $message message
      * @return void
      */
-    public function error(int $code, ?string $message = null) {
+    public function error(int $code, ?string $message = null)
+    {
         $this->code = $code;
-        if ($message != null) {
-            $this->resBuffer = '{"message": "'.$message.'"}';
+        if ($message != null)
+        {
+            $this->resBuffer = '{"message": "' . $message . '"}';
         }
     }
 }
