@@ -19,10 +19,10 @@ class HomeController extends Controller
     {
         $res->end("hello world");
     }
-    
+
     public function Log(Request $req, Response $res)
     {
-        $res->end("logging to file " . $req->getIP() . " id => ".$req->getID());
+        $res->end("logging to file " . $req->getIP() . " id => " . $req->getID());
         $this->logger->log()->warning("request log from IPAddress with ID", ["IPA" => $req->getIP(), "ID" => $req->getID()]);
     }
 }

@@ -23,25 +23,25 @@ class Application
     private static AppLogger $RequestLogger;
 
     public static string $ROOT_PATH;
-    public static string $SUBROOT_PATH;
+    public static string $SUBDIR;
 
     public Request $request;
     public Response $response;
     public Router $router;
 
     private array $services;
-    
+
     /**
      * Application CTOR
      *
      * @param string $rootPath app absolute path
-     * @param string $subPath any subpath in case the app is in a dir
+     * @param string $subDir any subpath in case the app is in a dir
      * @param string $nameLogFile the name of the log Request file
      */
-    public function __construct(string $rootPath, string $subPath, string $nameLogFile)
+    public function __construct(string $rootPath, string $subDir, string $nameLogFile)
     {
         self::$ROOT_PATH = $rootPath;
-        self::$SUBROOT_PATH = $subPath;
+        self::$SUBDIR = $subDir;
         self::$RequestLogger = new AppLogger($nameLogFile);
         $this->request = new Request();
         $this->response = new Response();
@@ -68,26 +68,41 @@ class Application
      */
     public function run()
     {
-        try {
+        try
+        {
             $this->router->resolve($this->services); //Fills response attribute
         }
-        catch(DbExc $dbExc) {
-            self::log()->error("EXC-DB_MYSQLI: ". $dbExc->getMessage(), ["mysqli_code" => $dbExc->getCode()]);
+        catch (DbExc $dbExc)
+        {
+            self::log()->error(
+                "EXC-DB_MYSQLI: " . $dbExc->getMessage(),
+                ["mysqli_code" => $dbExc->getCode()]
+            );
             $this->response->error(500);
         }
-        catch(FileUploadExc $fileExc) {
-            self::log()->error("EXC-FILEUPLOAD: ". $dbExc->getMessage(), ["req_url" => $this->request->getReqURL(), "file_name" => $fileExc->fileName]);
+        catch (FileUploadExc $fileExc)
+        {
+            self::log()->error(
+                "EXC-FILEUPLOAD: " . $fileExc->getMessage(),
+                ["req_url" => $this->request->getReqURL(), "file_name" => $fileExc->fileName]
+            );
             $this->response->error(500);
         }
-        catch(NotAllowedHttpMethodExc $e) {
-            self::log()->error("HTTP-405: ". $e->getMessage(), ["req_url" => $this->request->getReqURL()]);
+        catch (NotAllowedHttpMethodExc $e)
+        {
+            self::log()->error(
+                "HTTP-405: " . $e->getMessage(),
+                ["req_url" => $this->request->getReqURL()]
+            );
             $this->response->error(405);
         }
-        catch(Exception $e) {
-            self::log()->error("EXC: ". $e->getMessage());
+        catch (Exception $e)
+        {
+            self::log()->error("EXC: " . $e->getMessage());
             $this->response->error(500);
         }
-        finally {
+        finally
+        {
             http_response_code($this->response->getCode());
             echo $this->response->getResponse();
         }
