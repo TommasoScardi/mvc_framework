@@ -53,7 +53,7 @@ class Router
         }
         else if (!(new ReflectionMethod($className, $action))->isPublic()) {
             Application::log()->error("HTTP-401: Requested private Controller Method", ["controller" => $controller, "action" => $action]);
-            $this->res->error(404, "Requested action not found into controller methods");
+            $this->res->error(404, "Requested action $action not found into controller $controller methods");
             return;
         }
         $classConstructorParams = array_map(function($v) {return $v->name;},
