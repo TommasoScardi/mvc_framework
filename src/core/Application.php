@@ -2,11 +2,11 @@
 
 namespace MvcFramework\Core;
 
-use MvcFramework\Exceptions\DbExc;
-use MvcFramework\Services\AppLogger;
-
 use MvcFramework\Core\Exceptions\NotAllowedHttpMethodExc;
 use MvcFramework\Core\Exceptions\FileUploadExc;
+use MvcFramework\Core\Exceptions\ServiceException;
+
+use MvcFramework\Services\AppLogger;
 
 use Exception;
 
@@ -43,6 +43,7 @@ class Application
         self::$ROOT_PATH = $rootPath;
         self::$SUBDIR = $subDir;
         self::$RequestLogger = new AppLogger($nameLogFile);
+        self::$RequestLogger->init();
         $this->request = new Request();
         $this->response = new Response();
         $this->router = new Router($this->request, $this->response);
@@ -72,11 +73,11 @@ class Application
         {
             $this->router->resolve($this->services); //Fills response attribute
         }
-        catch (DbExc $dbExc)
+        catch (ServiceException $serviceExc)
         {
             self::log()->error(
-                "EXC-DB_MYSQLI: " . $dbExc->getMessage(),
-                ["mysqli_code" => $dbExc->getCode()]
+                "EXC-SERVICE: " . $serviceExc->getMessage(),
+                ["code" => $serviceExc->getCode(), "service" => $serviceExc->getServiceName()]
             );
             $this->response->error(500);
         }
