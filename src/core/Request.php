@@ -267,7 +267,7 @@ class Request
         $fileExt = (new finfo(FILEINFO_EXTENSION))->file($_FILES[$inputName]["tmp_name"]);
         if ($allowExt !== null && !empty($allowExt))
         {
-            if (empty(array_filter($allowExt, function($var) use($fileExt) {return $var === $fileExt;})))
+            if (empty(array_filter($allowExt, fn($var) => $var === $fileExt)))
             {
                 throw new FileUploadExc("extension not allowed => $fileExt", $_FILES[$inputName]["tmp_name"]);
             }
