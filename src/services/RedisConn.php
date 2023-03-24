@@ -4,9 +4,10 @@ namespace MvcFramework\Services;
 
 use Predis\Client as RedisClient;
 
-use MvcFramework\Exceptions\DbExc;
+use MvcFramework\Core\Service;
+use MvcFramework\Core\Exceptions\ServiceException;
 
-class RedisConn
+class RedisConn implements Service
 {
     private string $host;
     private ?string $pwd;
@@ -26,14 +27,15 @@ class RedisConn
      */
     public function __construct(string $host, ?string $pwd = null, ?string $username = null, int $port = 6379)
     {
-        if ($host == null || $host == "")
-        {
-            throw new DbExc("No hostname provided when connecting to redis", DbExc::CODE_CONN_ERROR);
-        }
         $this->host = $host;
         $this->username = $username;
         $this->pwd = $pwd;
         $this->port = $port;
+    }
+
+    public function init()
+    {
+        return $this->open();
     }
 
     /**
@@ -49,6 +51,7 @@ class RedisConn
      * Open the connection
      * @return object
      */
+    //FIXME if connection is not established no exc is throw and apache web restart itself
     public function open()
     {
         $connOpt = array("scheme" => "tcp", "host" => $this->host, "port" => $this->port);
@@ -62,8 +65,7 @@ class RedisConn
         }
 
         $this->redisConn = new RedisClient($connOpt);
-
-        return $this;
+        return true;
     }
 
     /**
@@ -96,19 +98,16 @@ class RedisConn
      */
     public function get(string $key)
     {
-        if ($this->isAlive())
+        if (!$this->isAlive())
         {
-            $res = $this->redisConn->get($key);
-            if (!$res)
-            {
-                return false;
-            }
-            return $res;
+            return false;
         }
-        else
+        $res = $this->redisConn->get($key);
+        if (!$res)
         {
-            throw new DbExc(DbExc::STR_CONN_CLOSED, DbExc::CODE_CONN_CLOSED);
+            return false;
         }
+        return $res;
     }
 
     /**
@@ -121,17 +120,14 @@ class RedisConn
      */
     public function set(string $key, string $value, int $expSecTime = 0)
     {
-        if ($this->isAlive())
+        if (!$this->isAlive())
         {
-            $this->redisConn->set($key, $value);
-            if ($expSecTime > 0)
-            {
-                $this->redisConn->expire($key, $expSecTime);
-            }
+            return false;
         }
-        else
+        $this->redisConn->set($key, $value);
+        if ($expSecTime > 0)
         {
-            throw new DbExc(DbExc::STR_CONN_CLOSED, DbExc::CODE_CONN_CLOSED);
+            $this->redisConn->expire($key, $expSecTime);
         }
     }
 
@@ -143,14 +139,11 @@ class RedisConn
      */
     public function delete(string $key)
     {
-        if ($this->isAlive())
+        if (!$this->isAlive())
         {
-            return (bool)$this->redisConn->del($key);
+            return false;
         }
-        else
-        {
-            throw new DbExc(DbExc::STR_CONN_CLOSED, DbExc::CODE_CONN_CLOSED);
-        }
+        return (bool)$this->redisConn->del($key);
     }
 
     /**
@@ -162,14 +155,11 @@ class RedisConn
      */
     public function renewExpiration(string $key, int $expSecTime)
     {
-        if ($this->isAlive())
+        if (!$this->isAlive())
         {
-            return (bool)$this->redisConn->expire($key, $expSecTime);
+            return false;
         }
-        else
-        {
-            throw new DbExc(DbExc::STR_CONN_CLOSED, DbExc::CODE_CONN_CLOSED);
-        }
+        return (bool)$this->redisConn->expire($key, $expSecTime);
     }
 
     /**
@@ -181,19 +171,16 @@ class RedisConn
      */
     public function hGet(string $key, string $field)
     {
-        if ($this->isAlive())
+        if (!$this->isAlive())
         {
-            $res = $this->redisConn->hget($key, $field);
-            if (!$res)
-            {
-                return false;
-            }
-            return $res;
+            return false;
         }
-        else
+        $res = $this->redisConn->hget($key, $field);
+        if (!$res)
         {
-            throw new DbExc(DbExc::STR_CONN_CLOSED, DbExc::CODE_CONN_CLOSED);
+            return false;
         }
+        return $res;
     }
 
     /**
@@ -207,17 +194,14 @@ class RedisConn
      */
     public function hSet(string $key, string $field, string $value, int $expSecTime = 0)
     {
-        if ($this->isAlive())
+        if (!$this->isAlive())
         {
-            $this->redisConn->hset($key, $field, $value);
-            if ($expSecTime > 0)
-            {
-                $this->redisConn->expire($key, $expSecTime);
-            }
+            return false;
         }
-        else
+        $this->redisConn->hset($key, $field, $value);
+        if ($expSecTime > 0)
         {
-            throw new DbExc(DbExc::STR_CONN_CLOSED, DbExc::CODE_CONN_CLOSED);
+            $this->redisConn->expire($key, $expSecTime);
         }
     }
 
@@ -229,13 +213,10 @@ class RedisConn
      */
     public function hDel(string $key)
     {
-        if ($this->isAlive())
+        if (!$this->isAlive())
         {
-            return $this->redisConn->hdel($key);
+            return false;
         }
-        else
-        {
-            throw new DbExc(DbExc::STR_CONN_CLOSED, DbExc::CODE_CONN_CLOSED);
-        }
+        return $this->redisConn->hdel($key);
     }
 }

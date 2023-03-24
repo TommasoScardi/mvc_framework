@@ -44,8 +44,8 @@ class Router
         $className = "MvcFramework\\Controllers\\" . $controller . "Controller";
         if (!class_exists($className))
         {
-            Application::log()->error("HTTP-404: Requested controller class not founded", ["controller" => $controller]);
-            $this->res->error(404, "Requested controller class not founded");
+            Application::log()->error("HTTP-404: Requested controller class not found", ["controller" => $controller]);
+            $this->res->error(404, "Requested controller class not found");
             return;
         }
         if (!method_exists($className, $action))
@@ -60,23 +60,39 @@ class Router
             $this->res->error(404, "Requested action $action not found into controller $controller methods");
             return;
         }
-        $classConstructorParams = array_map(
-            function ($v)
-            {
-                return $v->name;
-            },
+
+        $controllerConstructorParams = array_map( fn($v) => $v->name,
             (new ReflectionClass($className))->getConstructor()->getParameters()
         );
-
-        $unregisteredServices = array_diff($classConstructorParams, array_keys($services));
+        $unregisteredServices = array_diff($controllerConstructorParams, array_keys($services));
         if (count($unregisteredServices) > 0)
         {
-            Application::log()->error("HTTP-404: The controller constructor request unavailable/unregistered services", ["services_list" => $unregisteredServices]);
-            $this->res->error(404, "The controller constructor request unavailable/unregistered services");
+            Application::log()->error("HTTP-500: The controller constructor requested unavailable/unregistered services", ["services_list" => $unregisteredServices, "controller" => $controller, "action" => $action]);
+            $this->res->error(500);
             return;
         }
 
-        $depToInject = array_intersect_key($services, array_fill_keys(array_intersect(array_keys($services), $classConstructorParams), null));
+        //the services requested by the controller => dependency
+        $depToInject = array_intersect_key($services, array_fill_keys(array_intersect(array_keys($services), $controllerConstructorParams), null));
+        //init of all requested services
+        foreach ($depToInject as $service)
+        { 
+            $serviceInterfaces = (new ReflectionClass($service))->getInterfaceNames();
+            $a = array_filter($serviceInterfaces, fn($v) => Service::class == $v);
+            if (count($a) == 0)
+            {
+                Application::log()->error("HTTP-500: The controller constructor requested serivces that not implements Service interface", ["service" => $service::class, "controller" => $controller, "action" => $action]);
+                $this->res->error(500);
+                return;
+            }
+            if (!call_user_func([$service, "init"], []))
+            {
+                Application::log()->error("HTTP-500: Unable to init the service required by the controller", ["service" => $service, "controller" => $controller, "action" => $action]);
+                $this->res->error(500);
+                return;
+            }
+        }
+
         $controllerInstance = new $className(...$depToInject);
         if (call_user_func([$controllerInstance, $action], $this->req, $this->res) === false)
         {

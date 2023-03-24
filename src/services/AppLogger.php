@@ -4,13 +4,17 @@ namespace MvcFramework\Services;
 
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
+
 use MvcFramework\Core\Application;
+use MvcFramework\Core\Service;
+use MvcFramework\Core\Exceptions\ServiceException;
 
 /**
  * Class Service to log on files
  */
-class AppLogger
+class AppLogger implements Service
 {
+    private string $fileName;
     private Logger $logger;
 
     /**
@@ -20,8 +24,14 @@ class AppLogger
      */
     public function __construct($name = "app.log")
     {
+        $this->fileName = $name;
+    }
+
+    public function init()
+    {
         $this->logger = new Logger("logger");
-        $this->logger->pushHandler(new StreamHandler(Application::$ROOT_PATH . "log/$name", Logger::WARNING));
+        $this->logger->pushHandler(new StreamHandler(Application::$ROOT_PATH . "log/".$this->fileName, Logger::WARNING));
+        return true;
     }
 
     /**
