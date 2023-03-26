@@ -49,7 +49,7 @@ class RedisConn implements Service
 
     /**
      * Open the connection
-     * @return object
+     * @return bool
      */
     //FIXME if connection is not established no exc is throw and apache web restart itself
     public function open()
