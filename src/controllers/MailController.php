@@ -28,14 +28,17 @@ class MailController extends Controller
             $res->end("email invalid", 400);
             return;
         }
-        $status = $this->mailSender->addReceivers($mailAdd)->addSubject("test email sender")->html("user_ban.html", ["username" => $mailAdd], "ban")->send();
-        if ($status !== true)
+        $mailSentRes = $this->mailSender->addReceivers($mailAdd)
+            ->addSubject("test email sender")
+            ->html("user_ban.html", ["username" => $mailAdd], "ban")
+            ->send();
+        if ($mailSentRes->status)
         {
-            $res->end("error sending the mail: $status", 400);
+            $res->end("mail sent successful");
         }
         else
         {
-            $res->end("mail sent successful");
+            $res->end("error sending the mail: " . $mailSentRes->errorMsg, 400);
         }
     }
 }

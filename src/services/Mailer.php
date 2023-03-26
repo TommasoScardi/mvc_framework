@@ -8,6 +8,7 @@ use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
 use MvcFramework\Core\Service;
+use stdClass;
 
 class Mailer implements Service
 {
@@ -146,17 +147,24 @@ class Mailer implements Service
     {
         $this->mail->isHTML(true);
         $body = file_get_contents(Application::$ROOT_PATH."templates/email/".$templateName);
-        $placeholders = array_map(fn($key) => "{{$key}}", array_keys($data));
+        $placeholders = array_map(fn($key) => "{{".$key."}}", array_keys($data));
         $this->mail->Body = str_replace($placeholders, $data, $body);
         $this->mail->AltBody = $altText;
         return $this;
     }
 
+    /**
+     * sends the mail prepared before
+     * @return stdClass with `status` boolean property that determine if the mail was sendt successfully or not and `errorMsg` string property
+     * @throws Exception 
+     */
     public function send()
     {
-        $ret = $this->mail->send();
+        $ret = new stdClass();
+        $ret->status = $this->mail->send();
+        $ret->errorMsg = $this->mail->ErrorInfo;
         $this->emptyFields();
-        return $ret === true ? $ret : $this->mail->ErrorInfo;
+        return $ret;
     }
 
     public static function validateMail($email)
