@@ -21,7 +21,7 @@ class DbController extends Controller
 
     public function Index(Request $req, Response $res)
     {
-        $res->json($this->db->open()->query("SELECT * from tab;"));
+        $res->json($this->db->query("SELECT * from tab;"));
     }
 
     public function Find(Request $req, Response $res)
@@ -29,10 +29,10 @@ class DbController extends Controller
         $req->registerMethods(Request::METHOD_GET, Request::METHOD_POST);
 
         $id = $req->getID();
-        $cache = $this->redis->open()->get("home_find_$id");
+        $cache = $this->redis->get("home_find_$id");
         if (!$cache)
         {
-            $data = $this->db->open()->queryParam("SELECT * from test.tab WHERE id = ?;", "i", [$id]);
+            $data = $this->db->queryParam("SELECT * from test.tab WHERE id = ?;", "i", [$id]);
             $this->redis->set("home_find_$id", json_encode($data), 10);
             $res->write("db")->end(json_encode($data));
             $res->json($data);
