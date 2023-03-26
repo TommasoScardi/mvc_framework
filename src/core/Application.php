@@ -15,15 +15,17 @@ use Exception;
  */
 class Application
 {
+    public static string $NAME;
+    public static string $ROOT_PATH;
+    public static string $SUBDIR;
+    public static int $UPLOADS_MAX_SIZE;
+    
     /**
      * Static Logger for Request ERROR logs
      *
      * @var AppLogger
      */
     private static AppLogger $RequestLogger;
-
-    public static string $ROOT_PATH;
-    public static string $SUBDIR;
 
     public Request $request;
     public Response $response;
@@ -38,12 +40,13 @@ class Application
      * @param string $subDir any subpath in case the app is in a dir
      * @param string $nameLogFile the name of the log Request file
      */
-    public function __construct(string $rootPath, string $subDir, string $nameLogFile)
+    public function __construct(string $appName, string $rootPath, string $subDir, int $maxUploadSize, string $nameLogFile)
     {
+        self::$NAME = $appName;
         self::$ROOT_PATH = $rootPath;
         self::$SUBDIR = $subDir;
-        self::$RequestLogger = new AppLogger($nameLogFile);
-        self::$RequestLogger->init();
+        self::$UPLOADS_MAX_SIZE = $maxUploadSize;
+        self::$RequestLogger = new AppLogger($nameLogFile, true);
         $this->request = new Request();
         $this->response = new Response();
         $this->router = new Router($this->request, $this->response);
