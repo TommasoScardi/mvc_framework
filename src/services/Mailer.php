@@ -48,6 +48,8 @@ class Mailer implements Service
         //Mail Server - Encryption
         $this->mail->SMTPAuth   = true;
         $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+
+        $this->mail->setFrom($this->senderEmail, Application::$NAME);
         return true;
     }
 
@@ -147,6 +149,7 @@ class Mailer implements Service
     {
         $this->mail->isHTML(true);
         $body = file_get_contents(Application::$ROOT_PATH."templates/email/".$templateName);
+        $body = str_replace("{{sitename}}", Application::$NAME, $body);
         $placeholders = array_map(fn($key) => "{{".$key."}}", array_keys($data));
         $this->mail->Body = str_replace($placeholders, $data, $body);
         $this->mail->AltBody = $altText;
