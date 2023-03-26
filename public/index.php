@@ -1,7 +1,7 @@
 <?php
 
-$path = dirname(__DIR__) . "/";
-$subPath = "mvc_framework";
+define("APP_ROOT", dirname(__DIR__) . "/");
+define("APP_SUBDIR", "mvc_framework");
 
 date_default_timezone_set("Europe/Rome");
 
@@ -15,7 +15,7 @@ use MvcFramework\Services\DbConn;
 use MvcFramework\Services\Mailer;
 use MvcFramework\Services\RedisConn;
 
-$app = new Application($_ENV["APP_NAME"], $path, $subPath, $_ENV["UPLOAD_MAX_SIZE"] , $_ENV["LOG_FILE"]);
+$app = new Application($_ENV["APP_NAME"], APP_ROOT, APP_SUBDIR, $_ENV["UPLOAD_MAX_SIZE"] , $_ENV["LOG_FILE"]);
 $app->registerService("logger", new AppLogger());
 $app->registerService("db", new DbConn($_ENV["DB_HOST"], $_ENV["DB_USER"], $_ENV["DB_PWD"], $_ENV["DB_NAME"]));
 $app->registerService("redis", new RedisConn($_ENV["REDIS_HOST"], $_ENV["REDIS_PWD"]));
