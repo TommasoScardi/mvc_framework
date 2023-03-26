@@ -23,7 +23,7 @@ class Response
 
     public const RES_SERVER_ERROR = 400;
 
-    private string $resBuffer = "";
+    private string $body = "";
     private int $code = 0;
 
     /**
@@ -46,7 +46,7 @@ class Response
         if ($code <= self::RES_CODE_MIN || $code >= self::RES_CODE_MAX)
         {
             $this->code = Response::RES_SERVER_ERROR;
-            $this->resBuffer = '{"message": "server error, status code must be between min and max"}';
+            $this->body = '{"message": "server error, status code must be between min and max"}';
             return;
         }
         $this->code = $code;
@@ -61,7 +61,7 @@ class Response
      */
     public function getResponse()
     {
-        return $this->resBuffer;
+        return $this->body;
     }
 
     /**
@@ -73,7 +73,7 @@ class Response
     public function write(mixed $data)
     {
         if ($this->code !== 0) return;
-        $this->resBuffer .= strval($data);
+        $this->body .= strval($data);
         return $this;
     }
 
@@ -94,7 +94,33 @@ class Response
             return;
         }
         $this->code = $code;
-        $this->resBuffer = $jsonString;
+        $this->body = $jsonString;
+    }
+
+    /**
+     * make a hidden source download
+     * @param string $relativePath relative path of the file
+     * @param string $downloadName the new file name
+     * @return bool troe on success, false otherwise
+     */
+    public function downloadFile(string $relativePath, string $downloadName)
+    {
+        $path = Application::$ROOT_PATH . $relativePath;
+        if (!file_exists($path))
+        {
+            $this->error(404, "file not found");
+        }
+        $this->code = 200;
+        $mimeType = mime_content_type($path);
+        $fileSize = filesize($path);
+
+        header("Content-Type: $mimeType");
+        header("Content-Length: $fileSize");
+        header("Content-Disposition: attachment; filename=$downloadName");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate");
+        header("Pragma: public");
+        return is_numeric(readfile($path)) ? true : false;
     }
 
     /**
@@ -107,7 +133,7 @@ class Response
     public function end(mixed $data, int $code = 200)
     {
         if ($this->code !== 0) return;
-        $this->resBuffer .= strval($data);
+        $this->body .= strval($data);
         $this->code = $code;
     }
 
@@ -123,7 +149,7 @@ class Response
         $this->code = $code;
         if ($message != null)
         {
-            $this->resBuffer = '{"message": "' . $message . '"}';
+            $this->body = '{"message": "' . $message . '"}';
         }
     }
 }

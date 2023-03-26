@@ -31,4 +31,9 @@ class HomeController extends Controller
         $res->end("logging to file " . $req->getIP() . " id => " . $req->getID());
         $this->logger->log()->warning("request log from IPAddress with ID", ["IPA" => $req->getIP(), "ID" => $req->getID()]);
     }
+
+    public function Download(Request $req, Response $res)
+    {
+        $res->downloadFile("templates/email/empty.html", "empty.html");
+    }
 }
