@@ -1,4 +1,4 @@
-<!-- username, tokenLink -->
+<!-- username, title, text, footer -->
 <!DOCTYPE html>
 <html lang="it">
 
@@ -65,7 +65,7 @@
                 font-weight: 500;
                 padding: 10px 30px 0px 30px;
               ">
-            Conferma Cambiamento Email Utente
+            {{title}}
           </p>
 
           <hr style="
@@ -77,37 +77,15 @@
               " />
 
           <p style="padding: 10px 30px; color: #666">
-            Hey <strong>{{username}}</strong>, <br />Sembra che tu abbia
-            cambiato l'indirizzo email al tuo account Testina. Che è successo
-            al vecchio?<br />
-            Il nuovo indirizzo è <strong>{{newEmailAddress}}</strong>, se
-            pensi di averlo digitato male non ti preoccupare perchè seguendo
-            il link lo potrai reinserire
+            Hey <strong>{{username}}</strong>, <br /> {{text}}
           </p>
 
           <p style="text-align: center">
             <img src="https://windscribe.com/img/emails/will_smith_forget.gif" width="300" />
           </p>
 
-          <p style="padding: 10px 30px; text-align: center; font-size: 10px">
-            <a href="{{tokenLink}}" style="
-                  font-size: 20px;
-                  display: block;
-                  border: 1px #3968bc solid;
-                  color: #3968bc;
-                  padding: 10px;
-                  width: 200px;
-                  margin: 10px auto;
-                  text-align: center;
-                  text-decoration: none;
-                  border-radius: 5px;
-                ">CONFERMA NUOVA EMAIL</a>
-            {{tokenLink}}
-          </p>
-
           <p style="padding: 10px 30px; color: #666">
-            Se non hai richiesto il cambio email, non ti preoccupare e goditi
-            la giornata.
+            {{footer}}
           </p>
         </div>
       </div>
