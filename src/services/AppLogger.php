@@ -22,9 +22,13 @@ class AppLogger implements Service
      *
      * @param string $name name of file
      */
-    public function __construct($name = "app.log")
+    public function __construct(string $name = "app.log", bool $autoInit = false)
     {
         $this->fileName = $name;
+        if ($autoInit)
+        {
+            $this->init();
+        }
     }
 
     public function init()
