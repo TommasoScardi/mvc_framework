@@ -102,6 +102,11 @@ class Request
         return array_change_key_case(apache_request_headers());
     }
 
+    public function getAuthHeader()
+    {
+        return $this->getHeaders()["authorization"];
+    }
+
     /**
      * Gets request method (get, post, delete)
      *
