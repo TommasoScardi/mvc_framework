@@ -4,6 +4,7 @@ namespace MvcFramework\Core;
 
 use Exception;
 use finfo;
+use MvcFramework\Core\Exceptions\ApplicationExc;
 use MvcFramework\Core\Exceptions\FileUploadExc;
 use MvcFramework\Core\Exceptions\NotAllowedHttpMethodExc;
 
@@ -203,7 +204,7 @@ class Request
      *
      * @return array
      */
-    public function getBody()
+    public function getBody(?array $mustContain = null)
     {
         $body = [];
         if ($this->method() === self::METHOD_POST)
@@ -226,6 +227,17 @@ class Request
             if ($this->isJsonBody())
             {
                 $body = filter_var_array($this->getJsonBody(), FILTER_SANITIZE_SPECIAL_CHARS);
+            }
+        }
+
+        if ($mustContain !== null && count($mustContain) > 0)
+        {
+            foreach ($mustContain as $v)
+            {
+                if (!isset($body[$v]))
+                {
+                    throw new ApplicationExc("missing $v data from body", 404, ["body_field_missing" => $v]);
+                }
             }
         }
 
@@ -259,7 +271,7 @@ class Request
             throw new FileUploadExc("the file came not from an upload", $_FILES[$inputName]["tmp_name"]);
         }
 
-        if ($_FILES[$inputName]["size"] > UPLOAD_MAX_SIZE)
+        if ($_FILES[$inputName]["size"] > Application::$UPLOADS_MAX_SIZE)
         {
             throw new FileUploadExc("exceeded file size limit", $_FILES[$inputName]["tmp_name"]);
         }
