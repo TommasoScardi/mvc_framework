@@ -38,7 +38,7 @@ class MailController extends Controller
         }
         else
         {
-            $res->error(400, "error sending the mail: " . $mailSentRes->errorMsg);
+            $res->error(400, "error sending the mail: " . $mailSentRes->message);
         }
     }
 }

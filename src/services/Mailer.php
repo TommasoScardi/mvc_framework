@@ -3,6 +3,7 @@
 namespace MvcFramework\Services;
 
 use MvcFramework\Core\Application;
+use MvcFramework\Core\MethodReturn;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
@@ -158,14 +159,14 @@ class Mailer implements Service
 
     /**
      * sends the mail prepared before
-     * @return stdClass with `status` boolean property that determine if the mail was sendt successfully or not and `errorMsg` string property
+     * @return MethodReturn with `status` boolean property that determine if the mail was sendt successfully or not and `message` string property
      * @throws Exception 
      */
     public function send()
     {
-        $ret = new stdClass();
+        $ret = new MethodReturn();
         $ret->status = $this->mail->send();
-        $ret->errorMsg = $this->mail->ErrorInfo;
+        $ret->message = $this->mail->ErrorInfo || null; //FIXME reminder operatore || non-binario
         $this->emptyFields();
         return $ret;
     }
