@@ -9,6 +9,8 @@ use MvcFramework\Core\Exceptions\ServiceException;
 use MvcFramework\Services\AppLogger;
 
 use Exception;
+use MvcFramework\Core\Exceptions\ApplicationExc;
+use RuntimeException;
 
 /**
  * MVC Application EndPoint - Manage all requests and resources (services)
@@ -100,7 +102,19 @@ class Application
             );
             $this->response->error(405);
         }
-        catch (Exception $e)
+        catch (ApplicationExc $e)
+        {
+            self::log()->error("EXC-APP: " . $e->getMessage(), $e->getContext());
+            if ($e->getCode() >= 400 && $e->getCode() < 500)
+            {
+                $this->response->error($e->getCode(), $e->getMessage());
+            }
+            else
+            {
+                $this->response->error(500);
+            }
+        }
+        catch (Exception|RuntimeException $e)
         {
             self::log()->error("EXC: " . $e->getMessage());
             $this->response->error(500);
