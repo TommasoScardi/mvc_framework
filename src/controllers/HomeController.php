@@ -2,10 +2,10 @@
 
 namespace MvcFramework\Controllers;
 
+use MvcFramework\Core\Application;
 use MvcFramework\Core\Controller;
 use MvcFramework\Core\Request;
 use MvcFramework\Core\Response;
-use MvcFramework\Core\Application;
 use MvcFramework\Services\AppLogger;
 
 class HomeController extends Controller
