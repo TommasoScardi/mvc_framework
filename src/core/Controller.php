@@ -13,6 +13,6 @@ abstract class Controller
 
     public function Index(Request $req, Response $res)
     {
-        $res->end("default index action of abstract controller");
+        $res->end("", 200);
     }
 }
