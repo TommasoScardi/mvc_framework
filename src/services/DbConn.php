@@ -45,7 +45,7 @@ class DbConn implements Service
         return $this->dbConn != null ? (bool)$this->dbConn->ping() : false;
     }
 
-    private static function paramType($param)
+    private static function paramType(mixed $param)
     {
         switch (gettype($param))
         {
@@ -56,6 +56,15 @@ class DbConn implements Service
             default:
                 return 's';
         }
+    }
+
+    private static function getParamsType(array $params)
+    {
+        $ret = "";
+        foreach ($params as $val) {
+            $ret .= self::paramType($val);
+        }
+        return $ret;
     }
 
     public function open()
@@ -111,7 +120,7 @@ class DbConn implements Service
         return false;
     }
 
-    public function execParam(string $sql, string $paramsType, array $params)
+    public function execParam(string $sql, array $params)
     {
 
         if (!$this->isAlive())
@@ -119,7 +128,7 @@ class DbConn implements Service
             return false;
         }
         $stmt = $this->dbConn->prepare($sql);
-        $stmt->bind_param($paramsType, ...$params);
+        $stmt->bind_param(self::getParamsType($params), ...$params);
         if (!$stmt->execute())
         {
             return false;
@@ -144,14 +153,14 @@ class DbConn implements Service
         return $resultSet;
     }
 
-    public function queryParam(string $sql, string $paramsType, array $params)
+    public function queryParam(string $sql, array $params)
     {
         if (!$this->isAlive())
         {
             return false;
         }
         $stmt = $this->dbConn->prepare($sql);
-        $stmt->bind_param($paramsType, ...$params);
+        $stmt->bind_param(self::getParamsType($params), ...$params);
         if (!$stmt->execute())
         {
             return false;
