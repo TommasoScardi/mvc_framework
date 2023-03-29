@@ -6,10 +6,13 @@ class MethodReturn
 {
     public bool $status;
     public ?string $message;
+    public ?array $data;
 
-    public function __construct(bool $status = true, ?string $message = null)
+    public function setReturn(bool $status, ?string $message = null, ?array $data = null)
     {
         $this->status = $status;
         $this->message = $message;
+        $this->data = $data;
+        return $this;
     }
 }
