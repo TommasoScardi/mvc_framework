@@ -53,32 +53,46 @@ class User extends Model
         return $this->email;
     }
 
-    public static function login(DbConn $db, User $user, string $password)
+    public static function login(DbConn $db, $email, string $password)
     {
         $ret = new MethodReturn();
-        $userData = $db->queryParam(sprintf("SELECT * from %s where %s = ?;", USER_TABLE, USER_FIELD_EMAIL), [$user->getEmail()]);
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL))
+        {
+            return $ret->setReturn(false, "invalid email");
+        }
+        $userData = $db->query(sprintf("SELECT * from %s where %s = ?;", USER_TABLE, USER_FIELD_EMAIL), [$email]);
         if (!$userData)
         {
-            $ret->status = false;
-            $ret->message = "no user found with email gived";
-            return $ret;
+            return $ret->setReturn(false, "no user found with email gived");
         }
         else if (count($userData) > 1)
         {
-            $ret->status = false;
-            $ret->message = "email ambiguous";
-            return $ret;
+            return $ret->setReturn(false, "email ambiguous");
         }
         
         if(!password_verify($password, $userData[0]["password"]))
         {
-            $ret->status = false;
-            $ret->message = "wrong password";
-            return $ret;
+            return $ret->setReturn(false, "wrong password");
         }
 
-        $ret->status = true;
-        $ret->message = "login success";
-        return $ret;
+        return $ret->setReturn(true, "login success");
+    }
+
+    public function register(DbConn $db, string $password)
+    {
+        $ret = new MethodReturn();
+
+        $pwdHash = password_hash($password, PASSWORD_DEFAULT);
+        if (!$pwdHash)
+        {
+            return $ret->setReturn(false, "unable to hash password");
+        }
+
+        $queryRes = $db->exec(sprintf("INSERT into %s (%s, %s, %s) value (?, ?, ?);", USER_TABLE, USER_FIELD_NAME, USER_FIELD_EMAIL, USER_FIELD_PASSWORD), [$this->name, $this->email, $pwdHash]);
+        if (!$queryRes)
+        {
+            return $ret->setReturn(false, "query error");
+        }
+        
     }
 }
