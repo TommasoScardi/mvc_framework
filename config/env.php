@@ -9,7 +9,7 @@ $dotenv->required("UPLOAD_MAX_SIZE")->isInteger();
 
 //env var for jwt auth
 $dotenv->required("AUTH_TOKEN_DURATION")->isInteger();
-$dotenv->required(["AUTH_TOKEN_ISSUER", "AUTH_TOKEN_CREATION_KEY", "AUTH_TOKEN_RENEW_KEY"]);
+$dotenv->required(["AUTH_TOKEN_ISSUER", "AUTH_TOKEN_CREATION_KEY"]);
 
 //env var for db instance
 $dotenv->required(['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PWD']);
