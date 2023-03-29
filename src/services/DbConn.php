@@ -40,11 +40,20 @@ class DbConn implements Service
         return $this->open();
     }
 
+    /**
+     * ping the db server
+     * @return bool 
+     */
     private function isAlive()
     {
         return $this->dbConn != null ? (bool)$this->dbConn->ping() : false;
     }
 
+    /**
+     * get the param type
+     * @param mixed $param 
+     * @return string `i` for integer, `s` for string and `d` for float/double
+     */
     private static function paramType(mixed $param)
     {
         switch (gettype($param))
@@ -58,6 +67,11 @@ class DbConn implements Service
         }
     }
 
+    /**
+     * like `paramType` but with an array
+     * @param array $params 
+     * @return string all datatypes in one string in order of params array index
+     */
     private static function getParamsType(array $params)
     {
         $ret = "";
@@ -67,6 +81,11 @@ class DbConn implements Service
         return $ret;
     }
 
+    /**
+     * open the db connection
+     * @return bool 
+     * @throws ServiceException 
+     */
     public function open()
     {
         try
@@ -89,6 +108,10 @@ class DbConn implements Service
         }
     }
 
+    /**
+     * close the db connection
+     * @return void 
+     */
     public function close()
     {
         if ($this->isAlive())
@@ -97,70 +120,60 @@ class DbConn implements Service
         }
     }
 
+    /**
+     * dispose the db connection
+     * @return void 
+     */
     public function dispose()
     {
         $this->close();
         $this->dbConn = null;
     }
 
-    public function exec(string $sql)
+    /**
+     * exec a non return dataset query with optional params for prepared queries
+     * @param string $sql the sql stirng
+     * @param null|array $params the params
+     * @return QueryResult query result
+     */
+    public function exec(string $sql, ?array $params = null)
     {
         if (!$this->isAlive())
         {
-            return false;
-        }
-        if ($this->dbConn->query($sql))
-        {
-            return true;
-        }
-        if ($this->dbConn->errno)
-        {
-            return false;
-        }
-        return false;
-    }
-
-    public function execParam(string $sql, array $params)
-    {
-
-        if (!$this->isAlive())
-        {
-            return false;
+            return new QueryResult(false);
         }
         $stmt = $this->dbConn->prepare($sql);
-        $stmt->bind_param(self::getParamsType($params), ...$params);
+        if ($params != null && count($params) > 0)
+        {
+            $stmt->bind_param(self::getParamsType($params), ...$params);
+        }
         if (!$stmt->execute())
         {
-            return false;
+            return
+            new QueryResult(false);
         }
-        $rowsAff = $stmt->affected_rows;
+        $queryResult = new QueryResult(true, $stmt->affected_rows, $stmt->insert_id);
         $stmt->close();
-        return (bool)$rowsAff;
+        return $queryResult;
     }
 
-    public function query(string $sql)
-    {
-        if (!$this->isAlive())
-        {
-            return false;
-        }
-        $res = $this->dbConn->query($sql);
-        $resultSet = $res->fetch_all(MYSQLI_ASSOC);
-        if (!$resultSet || $res->num_rows == 0)
-        {
-            return false;
-        }
-        return $resultSet;
-    }
-
-    public function queryParam(string $sql, array $params)
+    /**
+     * perform a query with dataset return in key=>value array
+     * @param string $sql the sql string
+     * @param null|array $params the params
+     * @return false|array false on error, a double depth array on success (first nueric index for rows, second string index for cols)
+     */
+    public function query(string $sql, ?array $params = null)
     {
         if (!$this->isAlive())
         {
             return false;
         }
         $stmt = $this->dbConn->prepare($sql);
-        $stmt->bind_param(self::getParamsType($params), ...$params);
+        if ($params != null && count($params) > 0)
+        {
+            $stmt->bind_param(self::getParamsType($params), ...$params);
+        }
         if (!$stmt->execute())
         {
             return false;
@@ -173,5 +186,27 @@ class DbConn implements Service
         $resultSet = $res->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
         return $resultSet;
+    }
+}
+
+class QueryResult
+{
+    public bool $status;
+    public int $affected_rows;
+    public int $insert_id;
+
+    public function __construct(bool $status, int $affected_rows = -1, int $insert_id = -1)
+    {
+        $this->status = $status;
+        $this->affected_rows = $affected_rows;
+        $this->insert_id;
+    }
+
+    public function setResult(bool $status, int $affected_rows = -1, int $insert_id = -1)
+    {
+        $this->status = $status;
+        $this->affected_rows = $affected_rows;
+        $this->insert_id;
+        return $this;
     }
 }
