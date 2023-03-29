@@ -1,4 +1,5 @@
-GET http://localhost:8080/mvc_framework/Db/Find/1
+GET http://localhost:8080/mvc_framework/Account/Test
+Authorization: Bearer abcdefghijklmnopqrstuvwxyzs
 
 ###
 POST http://localhost:8080/mvc_framework/Db/Find/1
