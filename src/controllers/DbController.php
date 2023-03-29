@@ -32,7 +32,7 @@ class DbController extends Controller
         $cache = $this->redis->get("home_find_$id");
         if (!$cache)
         {
-            $data = $this->db->queryParam("SELECT * from test.tab WHERE id = ?;", "i", [$id]);
+            $data = $this->db->query("SELECT * from test.tab WHERE id = ?;", [$id]);
             $this->redis->set("home_find_$id", json_encode($data), 10);
             $res->write("db")->end(json_encode($data));
             $res->json($data);
@@ -42,5 +42,10 @@ class DbController extends Controller
             $res->write("cache")->end($cache);
             $this->redis->renewExpiration("home_find_$id", 10);
         }
+    }
+
+    public function Show(Request $req, Response $res)
+    {
+        $res->json($this->db->query("show tables;"));
     }
 }
