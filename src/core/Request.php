@@ -102,9 +102,13 @@ class Request
         return array_change_key_case(apache_request_headers());
     }
 
+    /**
+     * return the authorizartion header
+     * @return string|null header if found, null otherwise 
+     */
     public function getAuthHeader()
     {
-        return $this->getHeaders()["authorization"];
+        return $this->getHeaders()["authorization"] ?? null;
     }
 
     /**
@@ -145,6 +149,10 @@ class Request
      */
     private function isJsonBody()
     {
+        if (!isset($this->getHeaders()["content-type"]) && !empty($this->getHeaders()["content-type"]))
+        {
+            return false;
+        }
         return $this->getHeaders()["content-type"] === "application/json";
     }
 
@@ -155,7 +163,12 @@ class Request
      */
     private function isFileUploading()
     {
-        return explode(';', $this->getHeaders()["content-type"])[0] === "multipart/form-data";
+        if (!isset($this->getHeaders()["content-type"]) && !empty($this->getHeaders()["content-type"]))
+        {
+            return false;
+        }
+        $cType = explode(';', $this->getHeaders()["content-type"]);
+        return count($cType) > 0 ? $cType[0] === "multipart/form-data" : false;
     }
 
     /**
